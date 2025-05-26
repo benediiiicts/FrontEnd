@@ -1,10 +1,10 @@
-import '../css/login_page.css'; 
+import '../css/signup_page.css'; 
 
 function SignUpPage() {
     return (
         <>
             <div id="container">
-                <h2>Sign In</h2>
+                <h2>Sign Up</h2>
                 <label htmlFor="email">Email<br/>
                     <input type="email" name="email" class="input" />
                 </label> 
@@ -14,7 +14,7 @@ function SignUpPage() {
                 <label htmlFor="password">Confirm Password<br/>
                     <input type="password" name="password" class="input" />
                 </label> 
-                <button type="submit" class="button">Log In</button>
+                <button type="submit" class="button">Sign Up</button>
             </div>
         </>
     )
