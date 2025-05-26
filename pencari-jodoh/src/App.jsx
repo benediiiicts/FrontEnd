@@ -1,4 +1,6 @@
 import LoginPage from "./pages/login.jsx";
+import SignUpPage from "./pages/signup.jsx";
+import RegisterPage from "./pages/register.jsx";
 import { Router, Route } from "@solidjs/router";
 
 function App() {
