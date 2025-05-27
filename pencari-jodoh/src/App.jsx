@@ -12,6 +12,9 @@ function App() {
         <Router>
             <Route path="/signup" component={SignUpPage}/>      
         </Router>
+        <Router>
+            <Route path="/register" component={RegisterPage}/>      
+        </Router>
     </div>
   );
 }

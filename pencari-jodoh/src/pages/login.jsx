@@ -6,12 +6,12 @@ function LoginPage() {
             <div id="container">
                 <h2>Sign In</h2>
                 <label htmlFor="email">Email<br/>
-                    <input type="email" name="email" class="input" />
+                    <input type="email" name="email" className="input" />
                 </label> 
                 <label htmlFor="password">Password<br/>
-                    <input type="password" name="password" class="input" />
+                    <input type="password" name="password" className="input" />
                 </label> 
-                <button type="submit" class="button">Log In</button>
+                <button type="submit" className="button">Log In</button>
             </div>
         </>
     )
