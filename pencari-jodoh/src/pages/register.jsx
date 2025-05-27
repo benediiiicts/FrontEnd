@@ -3,15 +3,29 @@
     import { useNavigate } from '@solidjs/router';
 
 
-    function RegisterPage() {
-        let fileInputRef;
+        function RegisterPage() {
+            let fileInputRef;
+            const [preview, setPreview] = createSignal(null);
 
-        const handleFileClick = () => {
-            fileInputRef.click(); // langsung akses DOM
-        };
+            const handleFileClick = () => {
+                fileInputRef.click(); // langsung akses DOM
+            };
+
+            const handleFileChange = (e) => {
+            const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        setPreview(reader.result);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+                
 
         const handleDeleteFile = () => {
             fileInputRef.value = null; // reset input file
+            setPreview(null);
         };
         
         const nav = useNavigate();
@@ -77,14 +91,17 @@
 
                           <div className="form-kanan">
                               <label className="upload-label">Upload Foto</label>
+                              <div className='upload-buttons'>
+                                        <button type="button" onClick={handleFileClick} className="choose-btn">
+                                        Pilih Foto
+                                        </button>
+                                        <button type="button" onClick={handleDeleteFile} className="delete-btn">
+                                            Hapus
+                                        </button>
+                                </div>
                               <div className="upload-box">
-                                  <input type="file" name="foto" accept="image/*"  style={{ display: 'none' }} ref={fileInputRef}/>
-                                  <button type="button" onClick={handleFileClick} className="choose-btn">
-                                      Pilih Foto
-                                  </button>
-                                  <button type="button" onClick={handleDeleteFile} className="delete-btn">
-                                      Hapus
-                                  </button>
+                                  <input type="file" name="foto" accept="image/*" style={{ display: 'none' }} ref={el => fileInputRef = el} onChange={handleFileChange}/>
+                                    {preview() && <img src={preview()} alt="Preview" style={{ maxHeight: '180px', maxWidth: '100%', objectFit: 'cover', borderRadius: '8px' }} />}
                               </div>
                           </div>
                       </div>
