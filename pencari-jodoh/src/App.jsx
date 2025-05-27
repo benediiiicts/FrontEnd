@@ -11,6 +11,9 @@ function App() {
             <Route path="/signup" component={SignUpPage}/>
             <Route path="/signup/register" component={RegisterPage}/>
         </Router>
+        <Router>
+            <Route path="/register" component={RegisterPage}/>      
+        </Router>
     </div>
   );
 }
