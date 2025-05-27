@@ -1,5 +1,6 @@
     import '../css/register_page.css';
     import { createSignal } from 'solid-js';
+    import { useNavigate } from '@solidjs/router';
 
 
     function RegisterPage() {
@@ -12,6 +13,12 @@
         const handleDeleteFile = () => {
             fileInputRef.value = null; // reset input file
         };
+        
+        const nav = useNavigate();
+    
+        function handleRegisterBtn() {
+            nav('/login')
+        }
         return (
             <>
               <div class="register-page-background">
@@ -88,7 +95,7 @@
                           </div>
 
                       <div className="button-wrapper">
-                          <button type="submit" className="button">Sign Up</button>
+                          <button type="submit" className="button" onClick={handleRegisterBtn}>Sign Up</button>
                       </div>
                   </div>
               </div>
