@@ -5,7 +5,7 @@ function ProfilePage() {
     const navigate = useNavigate();
 
     const handleBackClick = () => {
-        navigate('/homepage');
+        navigate('/dashboard');
     };
 
     const handleProfileIconClick = () => {
