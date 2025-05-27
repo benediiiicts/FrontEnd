@@ -4,6 +4,9 @@ import { useNavigate } from '@solidjs/router';
 function DashboardPage() {
     const nav = useNavigate();
 
+    function handleLikedBtn() {
+        nav('/liked-users')
+    }
     function handleChatBtn() {
         nav('/chat')
     }
@@ -16,7 +19,7 @@ function DashboardPage() {
     <div>
         <div class="header">
             <div class="left-items">
-                <a class="header-item">
+                <a onClick={handleLikedBtn} class="header-item">
                 <span style="font-size: 24px;">👥</span>
                 Liked Users
                 </a>

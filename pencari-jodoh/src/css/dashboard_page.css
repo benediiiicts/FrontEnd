@@ -66,10 +66,10 @@
 }
 
 .card img {
-    max-width: 90%;
-    max-height: 90%;
+    max-width: 100%;
+    max-height: 100%;
     border-radius: 8px;
-    object-fit: cover; /* Agar gambar mengisi container tanpa terdistorsi */
+    object-fit: fill; /* Agar gambar mengisi container tanpa terdistorsi */
 }
 
 .controls {
