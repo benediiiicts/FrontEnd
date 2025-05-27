@@ -4,6 +4,7 @@ import RegisterPage from "./pages/register.jsx";
 import DashboardPage from "./pages/dashboard.jsx";
 import ProfilePage from "./pages/profile.jsx";
 import ChatPage from "./pages/chatPage.jsx";
+import LikedPage from "./pages/liked.jsx";
 import { Router, Route } from "@solidjs/router";
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
             <Route path="/signup/register" component={RegisterPage}/>
             <Route path="/chat" component={ChatPage}/>
             <Route path="/profile" component={ProfilePage} />
+            <Route path="/liked-users" component={LikedPage} />
         </Router>
     </div>
   );

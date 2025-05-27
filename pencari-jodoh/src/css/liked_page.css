@@ -1,0 +1,196 @@
+.liked-page-overall-background {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; /* Consistent font */
+    background-color: #E9ECEF; /* Background for the area outside the main container, as per image */
+    color: #212529; /* Default dark text color for readability */
+    line-height: 1.5; /* Adapted from register_page.css */
+    display: flex; /* Using flex to ensure content can be centered or structured easily */
+    flex-direction: column; /* Stack header and main content vertically */
+    min-height: 100vh; /* Ensure page takes at least full viewport height */
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* Allow this container to grow and fill available space */
+}
+
+.liked-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 24px; /* Spacing inside the header */
+    background-color: #F8F9FA; /* Light background for the header bar, matching image */
+    /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); */ /* Optional subtle shadow for header, can be uncommented if desired */
+    width: 100%;
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+}
+
+.icon-button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    color: #495057; /* Icon color */
+    display: flex; /* Helps align SVG icon properly */
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%; /* Make button circular for better touch target */
+    transition: background-color 0.2s ease-in-out;
+}
+
+.icon-button:hover {
+    background-color: rgba(0, 0, 0, 0.05); /* Subtle hover effect */
+    color: #000000;
+}
+
+.icon-button svg {
+    width: 22px; /* Control icon size */
+    height: 22px;
+}
+
+.profile-icon-container {
+    padding: 4px; /* Add some padding around the icon if needed */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile-icon-container svg {
+    width: 28px; /* Control icon size */
+    height: 28px;
+    fill: #495057; /* Icon color */
+    cursor: pointer; /* Indicate it's interactive */
+    transition: fill 0.2s ease-in-out;
+}
+.profile-icon-container svg:hover {
+    fill: #000000;
+}
+
+
+.liked-page-main-content {
+    flex-grow: 1; /* Allows this section to take up available vertical space */
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Align container to the top of this section */
+    padding: 24px; /* Padding around the central content block */
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#likedItemsContainer {
+    background-color: #FFFFFF; /* White background for the container of cards and pagination, as per image */
+    padding: 24px 30px; /* Spacing inside the container (adapted from register_page.css) */
+    border-radius: 10px; /* Rounded corners (adapted from register_page.css) */
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08); /* Softer shadow for light theme (adapted) */
+    width: 100%;
+    max-width: 960px; /* Max width for the container (adapted) */
+    box-sizing: border-box;
+    margin-top: 20px; /* Space from the header */
+}
+
+.items-grid {
+    display: grid;
+    /* grid-template-columns: repeat(4, 1fr); /* Fixed 4 columns as in the image */
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* Responsive: fills with as many columns as fit, each at least 180px */
+    gap: 20px; /* Spacing between cards (from register_page.css) */
+    margin-bottom: 30px; /* Space before pagination */
+}
+
+.liked-item-card {
+    background-color: #FFFFFF;
+    border: 1px solid #E0E0E0; /* Light border for cards */
+    border-radius: 8px; /* Rounded corners for cards (from register_page.css) */
+    padding: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    aspect-ratio: 1 / 1.2; /* Maintain an aspect ratio for cards, adjust as needed */
+    min-height: 150px; /* Minimum height for cards */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05); /* Subtle shadow for cards */
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; /* Smooth transitions */
+}
+
+.liked-item-card:hover {
+    transform: translateY(-3px); /* Slight lift on hover */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08); /* Enhanced shadow on hover */
+}
+
+.item-icon-svg {
+    width: 60%; /* Make icon responsive to card size */
+    max-width: 70px; /* Max size for the icon */
+    height: auto;
+    color: #495057; /* Icon color within the card */
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px; /* Spacing between pagination buttons (adapted) */
+    margin-top: 25px; /* Space above pagination (adapted) */
+}
+
+.page-button {
+    min-width: 36px;
+    padding: 8px 12px; /* Padding inside buttons (adapted) */
+    background-color: #F8F9FA; /* Light background for buttons */
+    color: #495057; /* Text color (adapted) */
+    border: 1px solid #DEE2E6; /* Border color (adapted) */
+    border-radius: 6px; /* Rounded corners (adapted) */
+    font-size: 14px; /* Font size */
+    font-weight: 500; /* Font weight */
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, color 0.2s ease-in-out, transform 0.15s ease-in-out; /* Smooth transitions (inspired by register_page.css) */
+}
+
+.page-button:hover {
+    background-color: #E9ECEF; /* Darker background on hover */
+    border-color: #CED4DA; /* Darker border on hover */
+}
+
+.page-button.active {
+    background-color: #6c757d; /* A neutral primary color for active state (can be adjusted) */
+    color: #FFFFFF; /* White text for active button */
+    border-color: #6c757d; /* Matching border color */
+    font-weight: 600; /* Bolder text for active button */
+}
+
+.page-button:active { /* Inspired by .button:active from register_page.css */
+    background-color: #5a6268; /* Even darker for active (pressed) state */
+    transform: scale(0.97); /* Slight shrink effect */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .liked-page-main-content {
+        padding: 16px;
+    }
+    #likedItemsContainer {
+        padding: 16px 20px;
+        margin-top: 10px;
+    }
+    .items-grid {
+        /* For smaller screens, you might want fewer columns or ensure minmax works well */
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 15px;
+    }
+    .liked-item-card {
+        min-height: 120px;
+    }
+    .liked-page-header {
+        padding: 10px 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .items-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); /* Even smaller cards */
+        gap: 10px;
+    }
+    .page-button {
+        min-width: 32px;
+        padding: 6px 10px;
+        font-size: 13px;
+    }
+     .item-icon-svg {
+        max-width: 50px;
+    }
+}
