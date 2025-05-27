@@ -4,7 +4,7 @@ function LoginPage() {
     return (
         <>
             <div id="container">
-                <h2>Sign In</h2>
+                <h2>Log In</h2>
                 <label htmlFor="email">Email<br/>
                     <input type="email" name="email" class="input" />
                 </label> 
