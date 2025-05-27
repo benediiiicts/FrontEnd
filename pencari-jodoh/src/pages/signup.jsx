@@ -1,6 +1,13 @@
 import '../css/signup_page.css'; 
+import { useNavigate } from '@solidjs/router';
 
 function SignUpPage() {
+    const nav = useNavigate();
+
+    function handleNextBtn() {
+        nav('/register')
+    }
+
     return (
         <>
             <div id="container">
@@ -14,7 +21,7 @@ function SignUpPage() {
                 <label htmlFor="password">Confirm Password<br/>
                     <input type="password" name="password" class="input" />
                 </label> 
-                <button type="submit" class="button">Sign Up</button>
+                <button class="button" onClick={handleNextBtn}>Next</button>
             </div>
         </>
     )

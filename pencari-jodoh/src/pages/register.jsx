@@ -14,7 +14,7 @@ function RegisterPage() {
                 <label htmlFor="password">Confirm Password<br/>
                     <input type="password" name="password" class="input" />
                 </label> 
-                <button type="submit" class="button">Log In</button>
+                <button type="submit" class="button">Register</button>
             </div>
         </>
     )
