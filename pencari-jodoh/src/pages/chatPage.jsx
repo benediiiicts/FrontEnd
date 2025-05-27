@@ -1,5 +1,5 @@
 // src/pages/ChatPage.jsx
-import '../css/chat_Page.css'; 
+import '../css/chat_page.css'; 
 
 function ChatPage() {
   const activeChatName = "Zefandion"; // Nama chat yang aktif di header
