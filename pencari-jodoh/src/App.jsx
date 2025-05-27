@@ -9,10 +9,7 @@ function App() {
         <Router>
             <Route path="/login" component={LoginPage} />
             <Route path="/signup" component={SignUpPage}/>
-            <Route path="/register" component={RegisterPage}/>
-        </Router>
-        <Router>
-            <Route path="/signup/register" component={RegisterPage}/>      
+            <Route path="/signup/register" component={RegisterPage}/>
         </Router>
     </div>
   );
