@@ -5,7 +5,7 @@ function LoginPage() {
     return (
         <>
             <div class="login-page-background">
-                <div id="container">
+                <div id="containerLogin">
                     <h2>Log In</h2>
                     <label htmlFor="email">Email<br/>
                         <input type="email" name="email" class="input" />

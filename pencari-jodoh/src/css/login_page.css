@@ -16,7 +16,7 @@
     line-height: 1.6;
 }
 
-#container {
+#containerLogin {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -31,7 +31,7 @@
     background-color: #3A3D56;
 }
 
-#container h2 {
+#containerLogin h2 {
     font-size: 36px;
     color: #FFFFFF;
     margin-top: 0px;
@@ -39,7 +39,7 @@
     font-weight: 500;
 }
 
-#container label {
+#containerLogin label {
     font-size: 14px;
     color: #D1D5DB;
     margin-bottom: 8px;

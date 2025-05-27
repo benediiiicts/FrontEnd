@@ -15,7 +15,7 @@
         return (
             <>
               <div class="register-page-background">
-                  <div id="container">
+                  <div id="containerRegister">
                       <h2>Data Diri</h2>
                       <div className="form-layout">
 
