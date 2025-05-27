@@ -20,7 +20,7 @@ function ProfilePage() {
 
 
     const handleBackClick = () => {
-        navigate('/homepage');
+        navigate('/dashboard');
     };
 
     const handleProfileIconClick = () => {

@@ -1,7 +1,14 @@
 // src/pages/ChatPage.jsx
 import '../css/chat_page.css'; 
+import { useNavigate } from '@solidjs/router';
 
 function ChatPage() {
+  const nav = useNavigate();
+  
+  function handleBackBtn() {
+      nav('/dashboard')
+  }
+
   const activeChatName = "Zefandion"; // Nama chat yang aktif di header
 
   // Pesan hardcoded 
@@ -29,7 +36,7 @@ function ChatPage() {
     <div class="chat-app-container">
       <header class="app-header">
         <div class="header-left">
-          <span class="icon-button">←</span>
+          <span class="icon-button" onclick={handleBackBtn}>←</span>
         </div>
         <div class="header-center">
           <span class="icon">👤</span>
