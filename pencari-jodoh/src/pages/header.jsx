@@ -1,29 +1,47 @@
 import '../css/header.css';
 import { useNavigate } from "@solidjs/router";
+import { createSignal, Show, onCleanup, onMount } from "solid-js";
 
 function Header() {
     const navigate = useNavigate();
+    const [showProfileMenu, setShowProfileMenu] = createSignal(false);
+    let profileMenuRef;
 
     const handleNavigation = (path) => {
         navigate(path);
+        setShowProfileMenu(false);
     };
 
-    const handleProfileClick = () => {
-        navigate('/profile'); // Example navigation
+    const toggleProfileMenu = (event) => {
+        event.stopPropagation();
+        setShowProfileMenu(!showProfileMenu());
     };
 
-    // Placeholder for user data
     const user = {
-        // profileImageUrl: 'path/to/user-profile.jpg',
-        initials: 'U' // Fallback if no image
+        initials: 'U'
     };
+
+    const handleClickOutside = (event) => {
+        if (profileMenuRef && !profileMenuRef.contains(event.target)) {
+            setShowProfileMenu(false);
+        }
+    };
+
+    onMount(() => {
+        document.addEventListener('click', handleClickOutside);
+    });
+
+    onCleanup(() => {
+        document.removeEventListener('click', handleClickOutside);
+    });
+
 
     return (
         <header class="independent-header-container">
-            {/* Left items container (can be empty or for future use like a logo) */}
             <div class="independent-header-left-items">
-                {/* Example: <span class="header-logo">MyApp</span> */}
+                {/* Logo ??? */}
             </div>
+
             <div class="independent-header-middle-items">
                 <div class="independent-header-item" onClick={() => handleNavigation('/liked-users')}>
                     <span style="font-size: 24px;" role="img" aria-label="Liked Users Icon">👥</span>
@@ -31,18 +49,29 @@ function Header() {
                 </div>
                 <div class="independent-header-item" onClick={() => handleNavigation('/chat')}>
                     <span style="font-size: 24px;" role="img" aria-label="Chat Icon">✉️</span>
-                    <span>Chat</span>
+                    <span>Chats</span>
                 </div>
             </div>
 
-            {/* Right items container */}
             <div class="independent-header-right-item">
-                <div class="independent-header-profile-icon" onClick={handleProfileClick}> {/* */}
-                    {user.profileImageUrl ? (
-                        <img src={user.profileImageUrl} alt="Profile" />
-                    ) : (
-                        <span>{user.initials}</span>
-                    )}
+                <div class="independent-header-profile-section" ref={profileMenuRef}>
+                    <div class="independent-header-profile-icon" onClick={toggleProfileMenu}>
+                        {user.profileImageUrl ? (
+                            <img src={user.profileImageUrl} alt="Profile" />
+                        ) : (
+                            <span>{user.initials}</span>
+                        )}
+                    </div>
+                    <Show when={showProfileMenu()}>
+                        <div class="profile-dropdown-menu">
+                            <div class="profile-dropdown-item" onClick={() => handleNavigation('/profile')}>
+                                Profile
+                            </div>
+                            <div class="profile-dropdown-item" onClick={() => handleNavigation('/login')} style="color: red">
+                                Log Out
+                            </div>
+                        </div>
+                    </Show>
                 </div>
             </div>
         </header>
