@@ -1,0 +1,159 @@
+DROP TABLE IF EXISTS user_hobi CASCADE;
+DROP TABLE IF EXISTS liked_users CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS hobi CASCADE;
+DROP TABLE IF EXISTS kota CASCADE;
+
+CREATE TABLE users (
+    user_id SERIAL PRIMARY KEY,
+    nama VARCHAR(255) NOT NULL,
+    tanggal_lahir DATE NOT NULL,
+    jenis_kelamin VARCHAR(10) NOT NULL CHECK (jenis_kelamin IN ('Pria', 'Wanita')),
+    sifat_kepribadian VARCHAR(10),
+    kota_id INTEGER REFERENCES kota(kota_id), -- Foreign key ke tabel kota
+    pendidikan_terakhir VARCHAR(50),
+    agama VARCHAR(50),
+    tinggi_badan INTEGER,
+    pekerjaan VARCHAR(255),
+    profile_picture BYTEA,
+    bio TEXT
+);
+
+CREATE TABLE liked_users (
+    liking_user_id INTEGER REFERENCES users(user_id),
+    liked_user_id INTEGER REFERENCES users(user_id),
+    liked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (liking_user_id, liked_user_id)
+);
+
+CREATE TABLE kota (
+    kota_id SERIAL PRIMARY KEY,
+    nama_kota VARCHAR(255) UNIQUE NOT NULL
+);
+
+CREATE TABLE hobi (
+    hobi_id SERIAL PRIMARY KEY,
+    nama_hobi VARCHAR(255) UNIQUE NOT NULL
+);
+
+CREATE TABLE user_hobi (
+    user_id INTEGER REFERENCES users(user_id),
+    hobi_id INTEGER REFERENCES hobi(hobi_id),
+    PRIMARY KEY (user_id, hobi_id)
+);
+
+INSERT INTO kota (nama_kota) VALUES
+('Banda Aceh'),
+('Lhokseumawe'),
+('Langsa'),
+('Sabang'),
+('Subulussalam'),
+('Medan'),
+('Binjai'),
+('Pematangsiantar'),
+('Tebing Tinggi'),
+('Tanjungbalai'),
+('Padangsidimpuan'),
+('Padang'),
+('Bukittinggi'),
+('Solok'),
+('Sawahlunto'),
+('Payakumbuh'),
+('Padang Panjang'),
+('Pekanbaru'),
+('Dumai'),
+('Tanjungpinang'),
+('Batam'),
+('Jambi'),
+('Sungai Penuh'),
+('Palembang'),
+('Lubuklinggau'),
+('Pagar Alam'),
+('Prabumulih'),
+('Bengkulu'),
+('Bandar Lampung'),
+('Metro'),
+('Pangkalpinang'),
+('Jakarta Pusat'),
+('Jakarta Utara'),
+('Jakarta Barat'),
+('Jakarta Selatan'),
+('Jakarta Timur'),
+('Bandung'),
+('Bekasi'),
+('Bogor'),
+('Cimahi'),
+('Cirebon'),
+('Depok'),
+('Sukabumi'),
+('Tasikmalaya'),
+('Banjar'),
+('Semarang'),
+('Surakarta'),
+('Salatiga'),
+('Magelang'),
+('Pekalongan'),
+('Tegal'),
+('Yogyakarta'),
+('Surabaya'),
+('Batu'),
+('Blitar'),
+('Kediri'),
+('Madiun'),
+('Malang'),
+('Mojokerto'),
+('Pasuruan'),
+('Probolinggo'),
+('Serang'),
+('Cilegon'),
+('Tangerang'),
+('Tangerang Selatan'),
+('Denpasar'),
+('Mataram'),
+('Bima'),
+('Kupang'),
+('Pontianak'),
+('Singkawang'),
+('Palangka Raya'),
+('Banjarmasin'),
+('Banjarbaru'),
+('Samarinda'),
+('Balikpapan'),
+('Bontang'),
+('Tarakan'),
+('Manado'),
+('Bitung'),
+('Tomohon'),
+('Kotamobagu'),
+('Palu'),
+('Makassar'),
+('Parepare'),
+('Palopo'),
+('Kendari'),
+('Baubau'),
+('Gorontalo'),
+('Mamuju'),
+('Ambon'),
+('Tual'),
+('Ternate'),
+('Tidore Kepulauan'),
+('Jayapura'),
+('Manokwari'),
+('Sorong');
+
+INSERT INTO hobi (nama_hobi) VALUES
+('Membaca Buku'),
+('Menonton Film'),
+('Bermain Game'),
+('Olahraga'),
+('Memasak'),
+('Traveling'),
+('Mendengarkan Musik'),
+('Fotografi'),
+('Berkebun'),
+('Melukis'),
+('Menulis'),
+('Berenang'),
+('Bersepeda'),
+('Hiking'),
+('Bermain Musik');

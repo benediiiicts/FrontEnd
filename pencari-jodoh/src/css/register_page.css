@@ -72,6 +72,15 @@
     background-color: #595D87;
 }
 
+#inputHobi {
+    height: 100px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
+    overflow: scroll;
+}
+
 .button {
     width: 100%;
     padding: 12px 15px;

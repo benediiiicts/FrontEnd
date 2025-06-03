@@ -15,12 +15,27 @@ function DashboardPage() {
 
     const [users, setUsers] = createSignal([]);
     const [error, setError] = createSignal(null);
+    const [loggedInUserEmail, setLoggedInUserEmail] = createSignal('');
+    const [loggedInUserId, setLoggedInUserId] = createSignal(null);
 
     console.log('DashboardPage: Component dirender.');
 
     onMount(async () => {
         console.log('onMount: Menjalankan operasi fetch.');
         setError(null); // Reset error setiap kali fetch dimulai
+
+        const authToken = localStorage.getItem('authToken');
+        const userEmail = localStorage.getItem('userEmail');
+        const userId = localStorage.getItem('userId');
+
+        if (!authToken || !userEmail || !userId) {
+            console.log('onMount: Tidak ada token, email, atau ID user. Mengarahkan ke halaman login.');
+            nav('/login', { replace: true }); // Arahkan ke login jika tidak ada token
+            return;
+        }
+
+        setLoggedInUserEmail(userEmail); // Set email user yang login
+        setLoggedInUserId(userId);
 
         try {
             const response = await fetch('http://localhost:3001/api/users');
@@ -116,6 +131,11 @@ function DashboardPage() {
         <div>
             <div class="header">
                 <div class="left-items">
+                    {loggedInUserEmail() && ( // Tampilkan email jika ada
+                        <span class="header-item" id="haloUser">
+                            Halo {loggedInUserEmail()}
+                        </span>
+                    )}
                     <a class="header-item">
                         <span style="font-size: 24px;">👥</span>
                         Liked Users

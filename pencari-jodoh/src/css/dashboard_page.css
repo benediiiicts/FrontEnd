@@ -6,6 +6,13 @@
     justify-content: center;
 }
 
+#haloUser {
+    position: absolute;
+    left: 20px;
+    color: white;
+    font-size: 20px;
+}
+
 .left-items {
     display: flex;
     align-items: center;
