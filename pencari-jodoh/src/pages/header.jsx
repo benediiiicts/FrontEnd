@@ -1,6 +1,9 @@
 import '../css/header.css';
 import { useNavigate } from "@solidjs/router";
 import { createSignal, Show, onCleanup, onMount } from "solid-js";
+import { BiSolidHomeHeart } from 'solid-icons/bi'
+import { BsPersonHeart } from 'solid-icons/bs'
+import { BsChatRightHeartFill } from 'solid-icons/bs'
 
 function Header() {
     const navigate = useNavigate();
@@ -35,20 +38,22 @@ function Header() {
         document.removeEventListener('click', handleClickOutside);
     });
 
-
     return (
         <header class="independent-header-container">
             <div class="independent-header-left-items">
                 {/* Logo ??? */}
             </div>
-
             <div class="independent-header-middle-items">
+                <div class="independent-header-item" onClick={() => handleNavigation('/dashboard')}>
+                    <BiSolidHomeHeart size={30}/>
+                    <span>Dashboard</span>
+                </div>
                 <div class="independent-header-item" onClick={() => handleNavigation('/liked-users')}>
-                    <span style="font-size: 24px;" role="img" aria-label="Liked Users Icon">👥</span>
+                    <BsPersonHeart size={30}/>
                     <span>Liked Users</span>
                 </div>
                 <div class="independent-header-item" onClick={() => handleNavigation('/chat')}>
-                    <span style="font-size: 24px;" role="img" aria-label="Chat Icon">✉️</span>
+                    <BsChatRightHeartFill size={30}/>
                     <span>Chats</span>
                 </div>
             </div>
