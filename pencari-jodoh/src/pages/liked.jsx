@@ -1,5 +1,6 @@
 import { createSignal, For } from 'solid-js';
 import { useNavigate } from '@solidjs/router';
+import Header from './header';
 import '../css/liked_page.css';
 
 const BackIconPlaceholder = () => <span>[Back]</span>;
@@ -42,14 +43,7 @@ function LikedPage() {
 
     return (
         <div class="liked-page-overall-background">
-            <header class="liked-page-header">
-                <button class="icon-button backButton" aria-label="Go back" onClick={handleGoHome}>
-                    <BackIconPlaceholder />
-                </button>
-                <div class="profile-icon-container" onClick={handleProfileClick} role="button" tabindex="0">
-                    <UserIconPlaceholder />
-                </div>
-            </header>
+            <Header/>
             <main class="liked-page-main-content">
                 <div id="likedItemsContainer">
                     <div class="items-grid">

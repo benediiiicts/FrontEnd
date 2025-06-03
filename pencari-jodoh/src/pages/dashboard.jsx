@@ -1,4 +1,5 @@
 import '../css/dashboard_page.css'; 
+import Header from './header';
 import { useNavigate } from '@solidjs/router';
 
 function DashboardPage() {
@@ -17,25 +18,7 @@ function DashboardPage() {
 
   return (
     <div>
-        <div class="header">
-            <div class="left-items">
-                <a onClick={handleLikedBtn} class="header-item">
-                <span style="font-size: 24px;">👥</span>
-                Liked Users
-                </a>
-                <a onClick={handleChatBtn} class="header-item">
-                <span style="font-size: 24px;">✉️</span>
-                Chat
-                </a>
-            </div>
-            <div class="right-item">
-                <a onClick={handleProfileBtn}>
-                    <div class="profile-icon">
-                    👤
-                    </div>
-                </a>
-            </div>
-        </div>
+        <Header/>
 
         <div class="container">
             <div class="listUser">

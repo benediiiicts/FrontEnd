@@ -1,6 +1,7 @@
 // src/pages/ChatPage.jsx
 import '../css/chat_page.css'; 
 import { useNavigate } from '@solidjs/router';
+import Header from './header';
 
 function ChatPage() {
   const nav = useNavigate();
@@ -34,6 +35,7 @@ function ChatPage() {
 
   return (
     <div class="chat-app-container">
+      <Header/>
       <header class="app-header">
         <div class="header-left">
           <span class="icon-button" onclick={handleBackBtn}>←</span>
