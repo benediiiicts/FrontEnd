@@ -54,10 +54,6 @@ function DashboardPage() {
             const data = await response.json();
             console.log('onMount: Data received from API:', data);
             console.log('onMount: Data[0]:', data[0]); // Log data pertama setelah fetch
-          
-  return (
-    <div>
-        <Header/>
 
             if (Array.isArray(data)) {
                 setUsers([...data]);
@@ -137,31 +133,7 @@ function DashboardPage() {
 
     return (
         <div>
-            <div class="header">
-                <div class="left-items">
-                    {loggedInUserEmail() && ( // Tampilkan email jika ada
-                        <span class="header-item" id="haloUser">
-                            Halo {loggedInUserEmail()}
-                        </span>
-                    )}
-                    <a class="header-item">
-                        <span style="font-size: 24px;">👥</span>
-                        Liked Users
-                    </a>
-                    <a onClick={handleChatBtn} class="header-item">
-                        <span style="font-size: 24px;">✉️</span>
-                        Chat
-                    </a>
-                </div>
-                <div class="right-item">
-                    <a onClick={handleProfileBtn}>
-                        <div class="profile-icon">
-                            👤
-                        </div>
-                    </a>
-                </div>
-            </div>
-
+            <Header/>
             <div class="container">
                 <div class="listUser">
                     {users().map((user, index) => (
