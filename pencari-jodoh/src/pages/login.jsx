@@ -1,10 +1,22 @@
 import { A } from '@solidjs/router';
 import { useNavigate } from '@solidjs/router';
-import { createSignal } from 'solid-js'; // Import createSignal
+import { createSignal, onMount } from 'solid-js'; // Import createSignal
 import '../css/login_page.css'; 
 
 function LoginPage() {
     const nav = useNavigate();
+
+    onMount(async () => {
+        const authToken = localStorage.getItem('authToken');
+        const userEmail = localStorage.getItem('userEmail');
+        const userId = localStorage.getItem('userId');
+
+        if (authToken && userEmail && userId) {
+            console.log('onMount: Sudah ada token, email, dan ID user. Mengarahkan ke halaman dashboard.');
+            nav('/dashboard', { replace: true }); // Arahkan ke halaman utama jika sudah ada token
+            return;
+        }
+    });
 
     // State untuk input form
     const [email, setEmail] = createSignal('');
