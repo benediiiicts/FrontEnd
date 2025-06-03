@@ -1,10 +1,14 @@
-import '../css/dashboard_page.css';
+import '../css/dashboard_page.css'; 
+import Header from './header';
 import { useNavigate } from '@solidjs/router';
 import { createSignal, onMount } from 'solid-js';
 
 function DashboardPage() {
     const nav = useNavigate();
 
+    function handleLikedBtn() {
+        nav('/liked-users')
+    }
     function handleChatBtn() {
         nav('/chat')
     }
@@ -50,6 +54,10 @@ function DashboardPage() {
             const data = await response.json();
             console.log('onMount: Data received from API:', data);
             console.log('onMount: Data[0]:', data[0]); // Log data pertama setelah fetch
+          
+  return (
+    <div>
+        <Header/>
 
             if (Array.isArray(data)) {
                 setUsers([...data]);
