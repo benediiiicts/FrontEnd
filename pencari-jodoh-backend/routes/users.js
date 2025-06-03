@@ -4,9 +4,12 @@ const router = express.Router();
 const userController = require('../controllers/users');
 
 router.post('/register', userController.registerUser);
-router.get('/getUsers', userController.getAllUsers);
+router.get('/getUsers', userController.authenticateToken, userController.getAllUsers);
 router.get('/kota', userController.getAllKota);
 router.get('/hobi', userController.getAllHobi);
-router.post('/login', userController.loginUser); // Tambahkan route untuk login
+router.post('/login', userController.loginUser);
+router.get('/profile', userController.authenticateToken, userController.getUserProfile);
+router.put('/profile/:userId', userController.authenticateToken, userController.updateUserProfile); // Route untuk update profil
+router.get('/profile-picture/:userId', userController.getProfilePicture);
 
 module.exports = router;

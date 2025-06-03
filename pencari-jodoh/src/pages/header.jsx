@@ -10,6 +10,11 @@ function Header() {
     const [showProfileMenu, setShowProfileMenu] = createSignal(false);
     let profileMenuRef;
 
+    // State untuk menyimpan informasi user yang login
+    const [loggedInUserEmail, setLoggedInUserEmail] = createSignal('');
+    const [loggedInUserId, setLoggedInUserId] = createSignal(null);
+    const [loggedInUserProfilePicture, setLoggedInUserProfilePicture] = createSignal(null);
+
     const handleNavigation = (path) => {
         navigate(path);
         setShowProfileMenu(false);
@@ -18,6 +23,20 @@ function Header() {
     const toggleProfileMenu = (event) => {
         event.stopPropagation();
         setShowProfileMenu(!showProfileMenu());
+    };
+
+    // Fungsi untuk menangani logout
+    const handleLogout = () => {
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userEmail');
+        localStorage.removeItem('userId');
+
+        setLoggedInUserEmail('');
+        setLoggedInUserId(null);
+        setLoggedInUserProfilePicture(null);
+
+        navigate('/login', { replace: true });
+        setShowProfileMenu(false);
     };
 
     const user = {
@@ -31,6 +50,16 @@ function Header() {
     };
 
     onMount(() => {
+        const email = localStorage.getItem('userEmail');
+        const userId = localStorage.getItem('userId');
+
+        if (email) {
+            setLoggedInUserEmail(email);
+        }
+        if (userId) {
+            setLoggedInUserId(userId);
+        }
+
         document.addEventListener('click', handleClickOutside);
     });
 
@@ -41,7 +70,10 @@ function Header() {
     return (
         <header class="independent-header-container">
             <div class="independent-header-left-items">
-                {/* Logo ??? */}
+                {/* Tampilkan email user yang login di sini */}
+                {loggedInUserEmail() && (
+                    <span class="header-greeting">Halo, {loggedInUserEmail()}</span>
+                )}
             </div>
             <div class="independent-header-middle-items">
                 <div class="independent-header-item" onClick={() => handleNavigation('/dashboard')}>
@@ -72,7 +104,7 @@ function Header() {
                             <div class="profile-dropdown-item" onClick={() => handleNavigation('/profile')}>
                                 Profile
                             </div>
-                            <div class="profile-dropdown-item" onClick={() => handleNavigation('/login')} style="color: red">
+                            <div class="profile-dropdown-item" onClick={handleLogout} style="color: red">
                                 Log Out
                             </div>
                         </div>
