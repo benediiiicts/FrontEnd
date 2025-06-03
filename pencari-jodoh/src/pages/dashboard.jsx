@@ -1,6 +1,7 @@
 import '../css/dashboard_page.css'; 
 import Header from './header';
 import { useNavigate } from '@solidjs/router';
+import { createSignal, onMount } from 'solid-js';
 
 function DashboardPage() {
     const nav = useNavigate();
@@ -16,34 +17,177 @@ function DashboardPage() {
         nav('/profile')
     }
 
+    const [users, setUsers] = createSignal([]);
+    const [error, setError] = createSignal(null);
+    const [loggedInUserEmail, setLoggedInUserEmail] = createSignal('');
+    const [loggedInUserId, setLoggedInUserId] = createSignal(null);
+
+    console.log('DashboardPage: Component dirender.');
+
+    onMount(async () => {
+        console.log('onMount: Menjalankan operasi fetch.');
+        setError(null); // Reset error setiap kali fetch dimulai
+
+        const authToken = localStorage.getItem('authToken');
+        const userEmail = localStorage.getItem('userEmail');
+        const userId = localStorage.getItem('userId');
+
+        if (!authToken || !userEmail || !userId) {
+            console.log('onMount: Tidak ada token, email, atau ID user. Mengarahkan ke halaman login.');
+            nav('/login', { replace: true }); // Arahkan ke login jika tidak ada token
+            return;
+        }
+
+        setLoggedInUserEmail(userEmail); // Set email user yang login
+        setLoggedInUserId(userId);
+
+        try {
+            const response = await fetch('http://localhost:3001/api/users');
+            console.log('onMount: Fetch response received. Status:', response.status);
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('onMount: Server response not OK', response.status, errorText);
+                throw new Error(`HTTP error! status: ${response.status} - ${response.statusText || errorText}`);
+            }
+
+            const data = await response.json();
+            console.log('onMount: Data received from API:', data);
+            console.log('onMount: Data[0]:', data[0]); // Log data pertama setelah fetch
+          
   return (
     <div>
         <Header/>
 
-        <div class="container">
-            <div class="listUser">
-                <div class="card" id="3" style="z-index: 3;">
-                    <img src="https://images.unsplash.com/photo-1526413232644-8a40f03cc03b?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="gambar kucing"/>
+            if (Array.isArray(data)) {
+                setUsers([...data]);
+                console.log('onMount: Users signal updated. Current users():', users());
+            } else {
+                console.error('onMount: Data received is not an array:', data);
+                setError(new Error('Data yang diterima dari server bukan format yang diharapkan (array).'));
+            }
+
+        } catch (err) {
+            console.error('onMount: Error during fetch or data processing:', err);
+            setError(err);
+        } finally {
+            console.log('Fetch Data Completed.');
+        }
+    });
+
+    const [cardIndex, setCardIndex] = createSignal(0);
+    const [action, setAction] = createSignal("");
+
+    const nextCard = () => {
+        if (cardIndex() <= users().length - 1) {
+            setCardIndex(cardIndex() + 1);
+        } else {
+            return (
+                <div>
+                    <p>semua user sudah dilihat.</p>
                 </div>
-                <div class="card" id="2" style="z-index: 2;">
-                    <img src="https://images.unsplash.com/photo-1526413232644-8a40f03cc03b?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="gambar kucing"/>
+            );
+            // Tambahkan logika lain jika diperlukan
+        }
+    };
+
+    const likeCard = () => {
+        // Tambahkan logika "like" di sini
+        console.log('Liked:', users()[cardIndex()]);
+        nextCard();
+        setAction((prev) => "like")
+    };
+
+    const dislikeCard = () => {
+        // Tambahkan logika "dislike" di sini
+        console.log('Disliked:', users()[cardIndex()]);
+        nextCard();
+        setAction((prev) => "dislike")
+    };
+
+    const cardStyle = (index) => {
+        if(index < cardIndex()) {
+            if(action() === "like") {
+                return {
+                    "z-index": users().length - index,
+                    top: '0px',
+                    left: "0px",
+                    opacity: '0',
+                    transform: 'translateX(500px) scale(0.8)',
+                    transition: 'transform 0.3s ease-in-out, opacity 0.3s ease-in-out, top 0.3s ease-in-out',
+                };
+            }else {
+                return {
+                    "z-index": users().length - index,
+                    top: '0px',
+                    left: "0px",
+                    opacity: '0',
+                    transform: 'translateX(-500px) scale(0.8)',
+                    transition: 'transform 0.3s ease-in-out, opacity 0.3s ease-in-out, top 0.3s ease-in-out',
+                };
+            }
+        }else {
+            return {
+                "z-index": users().length - index,
+                top: '0px',
+                left: index * 50 + "px",
+            };
+        }
+    };
+
+    return (
+        <div>
+            <div class="header">
+                <div class="left-items">
+                    {loggedInUserEmail() && ( // Tampilkan email jika ada
+                        <span class="header-item" id="haloUser">
+                            Halo {loggedInUserEmail()}
+                        </span>
+                    )}
+                    <a class="header-item">
+                        <span style="font-size: 24px;">👥</span>
+                        Liked Users
+                    </a>
+                    <a onClick={handleChatBtn} class="header-item">
+                        <span style="font-size: 24px;">✉️</span>
+                        Chat
+                    </a>
                 </div>
-                <div class="card" id="1" style="z-index: 1;">
-                    <img src="https://images.unsplash.com/photo-1526413232644-8a40f03cc03b?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="gambar kucing"/>
+                <div class="right-item">
+                    <a onClick={handleProfileBtn}>
+                        <div class="profile-icon">
+                            👤
+                        </div>
+                    </a>
                 </div>
             </div>
 
-            <div class="controls">
-                <button class="control-button dislike-button">
-                    <span style="font-size: 24px;">✕</span>
-                </button>
-                <button class="control-button like-button">
-                    <span style="font-size: 24px;">❤️</span>
-                </button>
+            <div class="container">
+                <div class="listUser">
+                    {users().map((user, index) => (
+                        <div id={user.id} class="profile" style={cardStyle(index)}>
+                            {user.profilePicture && (
+                                <img
+                                    class="card"
+                                    src={`http://localhost:3001/images/${user.profilePicture}`}
+                                    alt={`Foto profil ${user.nama}`}
+                                />
+                            )}
+                        </div>
+                    ))}
+                </div>
+
+                <div class="controls">
+                    <button class="control-button dislike-button" onClick={dislikeCard}>
+                        <span style="font-size: 24px;">✕</span>
+                    </button>
+                    <button class="control-button like-button" onClick={likeCard}>
+                        <span style="font-size: 24px;">❤️</span>
+                    </button>
+                </div>
             </div>
         </div>
-    </div>
-  );
+    );
 }
 
 export default DashboardPage;
