@@ -6,6 +6,8 @@ DROP TABLE IF EXISTS kota CASCADE;
 
 CREATE TABLE users (
     user_id SERIAL PRIMARY KEY,
+	email VARCHAR(255) UNIQUE NOT NULL,
+	password VARCHAR(255) NOT NULL,
     nama VARCHAR(255) NOT NULL,
     tanggal_lahir DATE NOT NULL,
     jenis_kelamin VARCHAR(10) NOT NULL CHECK (jenis_kelamin IN ('Pria', 'Wanita')),
@@ -157,3 +159,15 @@ INSERT INTO hobi (nama_hobi) VALUES
 ('Bersepeda'),
 ('Hiking'),
 ('Bermain Musik');
+
+SELECT *
+FROM users
+
+SELECT *
+FROM user_hobi
+
+SELECT *
+FROM kota
+
+SELECT *
+FROM hobi
