@@ -1,99 +1,57 @@
 .liked-page-overall-background {
     margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
-    color: #212529;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     line-height: 1.5;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-    background-color: #ffffffb4;
+    background-color: #ffffff;
 }
-
-.liked-page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 24px;
-    background-color: #1e293b;
-    width: 100%;
-    box-sizing: border-box;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    color: wheat;
-}
-
-.icon-button {
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    padding: 8px;
-    color: wheat;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    transition: background-color 0.2s ease-in-out;
-}
-
-.icon-button:hover {
-    background-color: #E9ECEF;
-}
-.profile-icon-container {
-    cursor: pointer;
-    padding: 8px;
-    border-radius: 50%;
-    transition: background-color 0.2s ease-in-out;
-    margin-left: auto;
-}
-
-.profile-icon-container:hover {
-    background-color: #E9ECEF;
-}
-
 
 .liked-page-main-content {
     flex-grow: 1;
-    padding: 20px;
+    padding: 30px;
     display: flex;
     justify-content: center;
-    margin: 20px;
-    position: relative;
+    margin: 0 auto;
+    width: 100%;
+    max-width: 1200px;
+    box-sizing: border-box;
 }
 
 #likedItemsContainer {
     width: 100%;
-    max-width: 1200px;
     display: flex;
     flex-direction: column;
     gap: 30px;
-    background-color: #1e293b;
+    background-color: #ffffff;
     padding: 30px;
-    border-radius: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
 .items-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 20px;
 }
 
 
 .liked-item-card {
-    background-color: #FFFFFF;
+    background-color: #f9f9f9;
     border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     overflow: hidden;
     display: flex;
     flex-direction: column;
     aspect-ratio: 9 / 16;
     transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    border: 1px solid #e0e0e0;
 }
 
 .liked-item-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
 
 .item-icon-image {
@@ -110,8 +68,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #CED4DA;
-    color: #495057;
+    background-color: #e9ecef;
+    color: #6c757d;
     font-size: 14px;
 }
 
@@ -127,9 +85,9 @@
 .page-button {
     min-width: 36px;
     padding: 8px 12px;
-    background-color: #34374e;
-    color: #e9e9e9;
-    border: 1px solid #34374e;
+    background-color: #e0e0e0;
+    color: #333;
+    border: 1px solid #ccc;
     border-radius: 6px;
     font-size: 14px;
     font-weight: 500;
@@ -138,46 +96,51 @@
 }
 
 .page-button:hover {
-    background-color: #E9ECEF;
-    border-color: #CED4DA;
-    color: #495057;
+    background-color: #d0d0d0;
+    border-color: #b0b0b0;
+    color: #111;
 }
 
 .page-button.active {
-    background-color: #007BFF;
+    background-color: #4a90e2;
     color: #FFFFFF;
-    border-color: #007BFF;
+    border-color: #4a90e2;
     font-weight: 600;
 }
 
 .page-button:active {
-    background-color: #0056b3;
+    background-color: #3a7bd5;
     transform: scale(0.97);
 }
 
 
 @media (max-width: 768px) {
-    .liked-page-header {
-        padding: 10px 15px;
-    }
     .liked-page-main-content {
-        padding: 15px;
-    }
-    .icon-button.backButton {
-        top: 15px;
-        left: 15px;
-    }
-    .items-grid {
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-        gap: 15px;
+        padding: 20px;
     }
     #likedItemsContainer {
+        padding: 20px;
+        gap: 20px;
+    }
+    .items-grid {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
         gap: 15px;
     }
 }
 
 @media (max-width: 480px) {
+    .liked-page-main-content {
+        padding: 15px;
+    }
+    #likedItemsContainer {
+        padding: 15px;
+    }
     .items-grid {
         grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    .page-button {
+        padding: 7px 10px;
+        font-size: 12px;
     }
 }

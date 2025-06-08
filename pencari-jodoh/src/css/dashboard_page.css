@@ -87,7 +87,7 @@ img {
 .controls {
     display: flex;
     justify-content: center;
-    margin-top: 70px;
+    gap: 30px;
 }
 
 .control-button {
@@ -105,12 +105,12 @@ img {
 }
 
 .like-button {
-    background-color: #e91e63;
+    background-color: #6b6f8f;
     color: white;
 }
 
 .dislike-button {
-    background-color: #9e9e9e;
+    background-color: #e91e63;
     color: white;
 }
 

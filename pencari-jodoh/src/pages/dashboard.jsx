@@ -2,6 +2,8 @@ import '../css/dashboard_page.css';
 import Header from './header';
 import { useNavigate } from '@solidjs/router';
 import { createSignal, onMount } from 'solid-js';
+import { AiFillHeart } from 'solid-icons/ai'
+import { ImCross } from 'solid-icons/im'
 
 function DashboardPage() {
     const nav = useNavigate();
@@ -151,10 +153,10 @@ function DashboardPage() {
 
                 <div class="controls">
                     <button class="control-button dislike-button" onClick={dislikeCard}>
-                        <span style="font-size: 24px;">✕</span>
+                        <ImCross size={35}/>
                     </button>
                     <button class="control-button like-button" onClick={likeCard}>
-                        <span style="font-size: 24px;">❤️</span>
+                        <AiFillHeart size={40} />
                     </button>
                 </div>
             </div>

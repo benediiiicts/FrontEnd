@@ -36,18 +36,6 @@ function ChatPage() {
   return (
     <div class="chat-app-container">
       <Header/>
-      <header class="app-header">
-        <div class="header-left">
-          <span class="icon-button" onclick={handleBackBtn}>←</span>
-        </div>
-        <div class="header-center">
-          <span class="icon">👤</span>
-          <span>{activeChatName}</span>
-        </div>
-        <div class="header-right">
-          <span class="icon">👤</span> 
-        </div>
-      </header>
 
       <main class="main-content">
         <aside class="sidebar">
