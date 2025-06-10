@@ -1,4 +1,4 @@
-body {
+.register-page-background {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
     display: flex;
     justify-content: center;
@@ -16,7 +16,7 @@ body {
     line-height: 1.6;
 }
 
-#container {
+#containerRegister {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -25,13 +25,13 @@ body {
     border-radius: 12px;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
     width: 100%;
-    max-width: 420px;
+    max-width:900px;
     margin: 20px;
     box-sizing: border-box;
     background-color: #3A3D56;
 }
 
-#container h2 {
+#containerRegister h2 {
     font-size: 36px;
     color: #FFFFFF;
     margin-top: 0px;
@@ -39,7 +39,7 @@ body {
     font-weight: 500;
 }
 
-#container label {
+#containerRegister label {
     font-size: 14px;
     color: #D1D5DB;
     margin-bottom: 8px;
@@ -72,6 +72,15 @@ body {
     background-color: #595D87;
 }
 
+#inputHobi {
+    height: 100px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
+    overflow: scroll;
+}
+
 .button {
     width: 100%;
     padding: 12px 15px;
@@ -94,4 +103,73 @@ body {
 .button:active {
     background-color: #0E7490;
     transform: scale(0.98);
+}
+
+.form-layout {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    width: 100%;
+    flex-wrap: wrap;
+}
+
+.form-kiri,.form-tengah,.form-kanan {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+.form-kanan {
+    align-items: center;
+    justify-content: flex-start;
+    min-width: 160px;
+}
+
+.bio-section {
+    resize: none;
+    width: 100%;
+    margin-top: 20px;
+}
+
+textarea {
+    resize: none;
+}
+
+.upload-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 2px dashed #ccc;
+    padding: 10px;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+    margin-top: 5px;
+    position: relative;
+}
+
+.upload-box input[type="file"] {
+    flex: 1;
+}
+
+
+.choose-btn, .delete-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-right: 10px;
+}
+
+.choose-btn:hover {
+    background-color: #0056b3;
+}
+
+.delete-btn {
+    background-color: #ff4d4d;
+}
+
+.delete-btn:hover {
+    background-color: #cc0000;
 }

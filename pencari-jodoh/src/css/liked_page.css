@@ -1,0 +1,146 @@
+.liked-page-overall-background {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.5;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #ffffff;
+}
+
+.liked-page-main-content {
+    flex-grow: 1;
+    padding: 30px;
+    display: flex;
+    justify-content: center;
+    margin: 0 auto;
+    width: 100%;
+    max-width: 1200px;
+    box-sizing: border-box;
+}
+
+#likedItemsContainer {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.items-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+
+.liked-item-card {
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    aspect-ratio: 9 / 16;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    border: 1px solid #e0e0e0;
+}
+
+.liked-item-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.item-icon-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+
+.item-icon-placeholder-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #e9ecef;
+    color: #6c757d;
+    font-size: 14px;
+}
+
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 25px;
+}
+
+.page-button {
+    min-width: 36px;
+    padding: 8px 12px;
+    background-color: #e0e0e0;
+    color: #333;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, color 0.2s ease-in-out, transform 0.15s ease-in-out;
+}
+
+.page-button:hover {
+    background-color: #d0d0d0;
+    border-color: #b0b0b0;
+    color: #111;
+}
+
+.page-button.active {
+    background-color: #4a90e2;
+    color: #FFFFFF;
+    border-color: #4a90e2;
+    font-weight: 600;
+}
+
+.page-button:active {
+    background-color: #3a7bd5;
+    transform: scale(0.97);
+}
+
+
+@media (max-width: 768px) {
+    .liked-page-main-content {
+        padding: 20px;
+    }
+    #likedItemsContainer {
+        padding: 20px;
+        gap: 20px;
+    }
+    .items-grid {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .liked-page-main-content {
+        padding: 15px;
+    }
+    #likedItemsContainer {
+        padding: 15px;
+    }
+    .items-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    .page-button {
+        padding: 7px 10px;
+        font-size: 12px;
+    }
+}
