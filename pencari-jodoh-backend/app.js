@@ -1,29 +1,25 @@
 // app.js
 const express = require('express');
 const bodyParser = require('body-parser');
-const userRoutes = require('./routes/users');
-const pool = require('./config/database'); // Import pool
+const userRoutes = require('./routes/user');
+const dataRoutes = require('./routes/data');
+const pool = require('./config/database');
 const cors = require('cors');
 
 const app = express();
 const port = 3001;
 
-// Konfigurasi CORS untuk mengizinkan hanya dari http://localhost:3000
 const corsOptions = {
   origin: 'http://localhost:3000',
 };
 
-app.use(cors(corsOptions)); // Terapkan konfigurasi CORS
+app.use(cors(corsOptions));
 
 app.use(bodyParser.json());
 
-app.use('/users', userRoutes);
+app.use('/user', userRoutes);
+app.use('/data', dataRoutes);
 
-app.get('/', (req, res) => {
-  res.send('Selamat datang di sistem pencarian pasangan!');
-});
-
-// Uji koneksi database saat aplikasi dimulai
 pool.connect()
   .then(() => {
     console.log('Berhasil terhubung ke database PostgreSQL (dari app.js)!');
@@ -33,5 +29,4 @@ pool.connect()
   })
   .catch(err => {
     console.error('Gagal terhubung ke database PostgreSQL (dari app.js):', err);
-    // Anda mungkin ingin tidak memulai server jika koneksi database gagal
   });

@@ -1,8 +1,8 @@
 // controllers/users.js
 const pool = require('../config/database');
 const multer = require('multer');
-const bcrypt = require('bcrypt'); // Import bcrypt
-const jwt = require('jsonwebtoken'); // Import jsonwebtoken
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecretjwtkeyyangharusnyasangatpanjangdanacak';
 

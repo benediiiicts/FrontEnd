@@ -1,67 +1,68 @@
 import '../css/register_page.css';
-import { createSignal, createEffect, onMount } from 'solid-js';
+import { createSignal, onMount } from 'solid-js';
 import { useNavigate, useLocation } from '@solidjs/router';
-
-// Daftar agama di Indonesia (tidak lengkap, bisa ditambahkan)
-const daftarAgama = ['Islam', 'Kristen', 'Katolik', 'Hindu', 'Buddha', 'Konghucu', 'Lainnya'];
-
-// Daftar sifat kepribadian MBTI (lengkap)
-const daftarSifatKepribadian = [
-    'ISTJ', 'ISFJ', 'INFJ', 'INTJ', 'ISTP', 'ISFP', 'INFP', 'INTP',
-    'ESTP', 'ESFP', 'ENFP', 'ENTP', 'ESTJ', 'ESFJ', 'ENFJ', 'ENTJ'
-];
+import { createStore } from 'solid-js/store';
 
 function RegisterPage() {
     let fileInputRef;
     const nav = useNavigate();
     const location = useLocation();
+    
+    let userEmail;
+    let userPassword;
 
-    const initialEmail = location.state?.email || '';
-    const initialPassword = location.state?.password || '';
+    if(location.state) {
+        userEmail = location.state.email;
+        userPassword = location.state.password;
+    }
 
-    // State untuk nilai input form
-    const [email, setEmail] = createSignal(initialEmail);
-    const [password, setPassword] = createSignal(initialPassword);
-    const [nama, setNama] = createSignal('');
-    const [tanggalLahir, setTanggalLahir] = createSignal('');
-    const [jenisKelamin, setJenisKelamin] = createSignal('');
-    const [sifatKepribadian, setSifatKepribadian] = createSignal('');
-    const [kotaId, setKotaId] = createSignal(''); // Menggunakan kotaId
-    const [pendidikanTerakhir, setPendidikanTerakhir] = createSignal('');
-    const [agama, setAgama] = createSignal('');
-    const [tinggiBadan, setTinggiBadan] = createSignal('');
-    const [pekerjaan, setPekerjaan] = createSignal('');
-    const [hobiList, setHobiList] = createSignal([]); // Array untuk menyimpan hobi yang dipilih (ID Hobi)
-    const [bio, setBio] = createSignal('');
-    const [profilePicture, setProfilePicture] = createSignal(null);
+    const [userDetails, setUserDetails] = createStore({
+        email: userEmail,
+        password: userPassword,
+        nama: '',
+        tanggalLahir: '',
+        jenisKelamin: '',
+        sifatKepribadian: '',
+        idKota: null,
+        pendidikanTerakhir: '',
+        agama: '',
+        tinggiBadan: null,
+        pekerjaan: '',
+        hobiList: [],
+        bio: '',
+        profilePicture: null,
+        profilePictureUrl: null,
+    });
 
-    // State untuk menyimpan data dari server
-    const [daftarKota, setDaftarKota] = createSignal([]);
-    const [daftarHobi, setDaftarHobi] = createSignal([]);
+    const [dataDariServer, setDataDariServer] = createStore({
+        listKota: [],
+        listHobi: [],
+        listKepribadian: [],
+        listAgama: [],
+    });
 
     const handleInputChange = (event) => {
         const { name, value } = event.currentTarget;
         switch (name) {
-            case 'nama': setNama(value); break;
-            case 'tanggalLahir': setTanggalLahir(value); break;
-            case 'jenisKelamin': setJenisKelamin(value); break;
-            case 'sifat': setSifatKepribadian(value); break;
-            case 'kota': setKotaId(value); break; // Menggunakan value dari option kota
-            case 'pendidikan': setPendidikanTerakhir(value); break;
-            case 'agama': setAgama(value); break;
-            case 'tinggi': setTinggiBadan(value ? parseInt(value, 10) : undefined); break;
-            case 'pekerjaan': setPekerjaan(value); break;
-            case 'bio': setBio(value); break;
+            case 'nama': setUserDetails('nama', value); break;
+            case 'tanggalLahir': setUserDetails('tanggalLahir', value); break;
+            case 'jenisKelamin': setUserDetails('jenisKelamin', value); break;
+            case 'sifat': setUserDetails('sifatKepribadian', value); break;
+            case 'kota': setUserDetails('idKota', value); break; 
+            case 'pendidikan': setUserDetails('pendidikanTerakhir',value); break;
+            case 'agama': setUserDetails('agama', value); break;
+            case 'tinggi': setUserDetails('tinggiBadan', parseInt(value)); break;
+            case 'pekerjaan': setUserDetails('pekerjaan', value); break;
+            case 'bio': setUserDetails('bio', value); break;
             default: break;
         }
     };
 
-    // Fungsi untuk menangani perubahan pada checkbox hobi (tetap sama)
     const handleHobiCheckboxChange = (hobiId, isChecked) => {
         if (isChecked) {
-            setHobiList([...hobiList(), hobiId]);
+            setUserDetails('hobiList', hobiList => [...hobiList, hobiId]);
         } else {
-            setHobiList(hobiList().filter(id => id !== hobiId));
+            setUserDetails('hobiList', hobiList => hobiList.filter(id => id !== hobiId));
         }
     };
 
@@ -71,39 +72,57 @@ function RegisterPage() {
 
     const handleFileChange = (event) => {
         const file = event.currentTarget.files[0];
-        setProfilePicture(file);
+        setUserDetails('profilePicture', file);
+        setUserDetails('profilePictureUrl', URL.createObjectURL(file));
     };
 
     const handleDeleteFile = () => {
         if (fileInputRef) {
             fileInputRef.value = null;
         }
-        setProfilePicture(null);
+        setUserDetails('profilePicture', null);
+        setUserDetails('profilePictureUrl', null);
     };
 
     // Fetch data kota dan hobi dari server saat komponen mount
     onMount(async () => {
         // Redirect jika email atau password tidak ada (akses langsung ke register)
-        if (!initialEmail || !initialPassword) {
+        if (!userEmail || !userPassword) {
             nav('/signup', { replace: true }); // Kembali ke halaman signup
             return;
         }
 
         try {
-            const kotaResponse = await fetch('http://localhost:3001/users/kota'); // Endpoint untuk mendapatkan daftar kota
+            const kotaResponse = await fetch('http://localhost:3001/data/kota');
             if (kotaResponse.ok) {
                 const data = await kotaResponse.json();
-                setDaftarKota(data.kota); // Asumsi responsnya { kota: [...] }
+                setDataDariServer('listKota', data.kota);
             } else {
                 console.error('Gagal mengambil daftar kota');
             }
 
-            const hobiResponse = await fetch('http://localhost:3001/users/hobi'); // Endpoint untuk mendapatkan daftar hobi
+            const hobiResponse = await fetch('http://localhost:3001/data/hobi');
             if (hobiResponse.ok) {
                 const data = await hobiResponse.json();
-                setDaftarHobi(data.hobi); // Asumsi responsnya { hobi: [...] }
+                setDataDariServer('listHobi', data.hobi);
             } else {
                 console.error('Gagal mengambil daftar hobi');
+            }
+
+            const kepribadianResponse = await fetch('http://localhost:3001/data/kepribadian');
+            if (kepribadianResponse.ok) {
+                const data = await kepribadianResponse.json();
+                setDataDariServer('listKepribadian', data.kepribadian);
+            } else {
+                console.error('Gagal mengambil daftar kepribadian');
+            }
+
+            const agamaResponse = await fetch('http://localhost:3001/data/agama');
+            if (agamaResponse.ok) {
+                const data = await agamaResponse.json();
+                setDataDariServer('listAgama', data.agama);
+            } else {
+                console.error('Gagal mengambil daftar agama');
             }
         } catch (error) {
             console.error('Error fetching kota dan hobi:', error);
@@ -114,31 +133,24 @@ function RegisterPage() {
         event.preventDefault();
 
         const formData = new FormData();
-        formData.append('email', email());
-        formData.append('password', password());
-        formData.append('nama', nama());
-        formData.append('tanggal_lahir', tanggalLahir());
-        formData.append('jenis_kelamin', jenisKelamin());
-        formData.append('sifat_kepribadian', sifatKepribadian());
-        formData.append('kota_id', kotaId()); // Kirim kota_id
-        formData.append('pendidikan_terakhir', pendidikanTerakhir());
-        formData.append('agama', agama());
-        const tinggi = tinggiBadan();
-        if (tinggi !== undefined) {
-            formData.append('tinggi_badan', tinggi);
-        }
-        formData.append('pekerjaan', pekerjaan());
-        formData.append('hobi', JSON.stringify(hobiList())); // Kirim array hobi sebagai JSON
-        const bioText = bio();
-        if (bioText) {
-            formData.append('bio', bioText);
-        }
-        if (profilePicture()) {
-            formData.append('profile_picture', profilePicture());
-        }
+        formData.append('email', userDetails.email);
+        formData.append('password', userDetails.password);
+        formData.append('nama', userDetails.nama);
+        formData.append('tanggal_lahir', userDetails.tanggalLahir);
+        formData.append('jenis_kelamin', userDetails.jenisKelamin);
+        formData.append('sifat_kepribadian', userDetails.sifatKepribadian);
+        formData.append('kota_id', userDetails.idKota); // Kirim kota_id
+        formData.append('pendidikan_terakhir', userDetails.pendidikanTerakhir);
+        formData.append('agama', userDetails.agama);
+        formData.append('pekerjaan', userDetails.pekerjaan);
+        formData.append('pendidikanTerakhir', userDetails.pendidikanTerakhir);
+        formData.append('hobi', JSON.stringify(userDetails.hobiList)); // Kirim array hobi sebagai JSON
+        formData.append('bio', userDetails.bio);
+        formData.append('profile_picture', userDetails.profilePicture);
+        formData.append('tinggi_badan', userDetails.tinggiBadan);
 
         try {
-            const response = await fetch('http://localhost:3001/users/register', {
+            const response = await fetch('http://localhost:3001/user/register', {
                 method: 'POST',
                 body: formData,
             });
@@ -164,11 +176,11 @@ function RegisterPage() {
                     <form className="form-layout" onSubmit={handleRegisterBtn}>
                         <div className="form-kiri">
                             <label htmlFor="nama">Nama<br/>
-                                <input type="text" name="nama" className="input" value={nama()} onInput={handleInputChange} required />
+                                <input type="text" name="nama" className="input" value={userDetails.nama} onInput={handleInputChange} required />
                             </label>
 
                             <label htmlFor="jenisKelamin">JenisKelamin<br/>
-                                <select name="jenisKelamin" id="jenisKelamin" className="input" value={jenisKelamin()} onChange={(e) => setJenisKelamin(e.currentTarget.value)} required>
+                                <select name="jenisKelamin" id="jenisKelamin" className="input" value={userDetails.jenisKelamin} onChange={handleInputChange} required>
                                     <option value="">-- Pilih --</option>
                                     <option value="Pria">Pria</option>
                                     <option value="Wanita">Wanita</option>
@@ -176,59 +188,60 @@ function RegisterPage() {
                             </label>
 
                             <label htmlFor="lokasi">Lokasi<br/>
-                                <select name="kota" id="lokasi" className="input" value={kotaId()} onChange={handleInputChange}>
+                                <select name="kota" id="lokasi" className="input" value={userDetails.idKota} onChange={handleInputChange} required>
                                     <option value="">-- Pilih Kota --</option>
-                                    {daftarKota().map(kota => (
-                                        <option key={kota.kota_id} value={kota.kota_id}>{kota.nama_kota}</option>
+                                    {dataDariServer.listKota.map(kota => (
+                                        <option value={kota.kota_id}>{kota.nama_kota}</option>
                                     ))}
                                 </select>
                             </label>
 
                             <label htmlFor="agama">Agama<br/>
-                                <select name="agama" id="agama" className="input" value={agama()} onChange={handleInputChange}>
+                                <select name="agama" id="agama" className="input" value={userDetails.agama} onChange={handleInputChange} required>
                                     <option value="">-- Pilih Agama --</option>
-                                    {daftarAgama.map(agamaItem => (
-                                        <option key={agamaItem} value={agamaItem}>{agamaItem}</option>
+                                    {dataDariServer.listAgama.map(agama => (
+                                        <option value={agama.agama_id}>{agama.nama_agama}</option>
                                     ))}
                                 </select>
                             </label>
 
                             <label htmlFor="pekerjaan">Pekerjaan<br/>
-                                <input type="text" id="pekerjaan" name="pekerjaan" className="input" value={pekerjaan()} onInput={handleInputChange} />
+                                <input type="text" id="pekerjaan" name="pekerjaan" className="input" value={userDetails.pekerjaan} onInput={handleInputChange} required/>
                             </label>
                         </div>
 
                         <div className="form-tengah">
                             <label htmlFor="tanggalLahir">Tanggal Lahir<br/>
-                                <input type="date" id="tanggalLahir" name="tanggalLahir" className="input" value={tanggalLahir()} onInput={handleInputChange} required />
+                                <input type="date" id="tanggalLahir" name="tanggalLahir" className="input" value={userDetails.tanggalLahir} onInput={handleInputChange} required />
                             </label>
 
                             <label htmlFor="sifat">Sifat kepribadian<br/>
-                                <select name="sifat" id="sifat" className="input" value={sifatKepribadian()} onChange={handleInputChange}>
+                                <select name="sifat" id="sifat" className="input" value={userDetails.sifatKepribadian} onChange={handleInputChange} required>
                                     <option value="">-- Pilih Sifat --</option>
-                                    {daftarSifatKepribadian.map(sifat => (
-                                        <option key={sifat} value={sifat}>{sifat}</option>
+                                    {dataDariServer.listKepribadian.map(kepribadian => (
+                                        <option value={kepribadian.kepribadian_id}>{kepribadian.jenis_kepribadian}</option>
                                     ))}
                                 </select>
                             </label>
 
                             <label htmlFor="pendidikan">Pendidikan terakhir<br/>
-                                <input type="text" id="pendidikan" name="pendidikan" className="input" value={pendidikanTerakhir()} onInput={handleInputChange} />
+                                <input type="text" id="pendidikan" name="pendidikan" className="input" value={userDetails.pendidikanTerakhir} onInput={handleInputChange} required/>
                             </label>
 
                             <label htmlFor="tinggi">Tinggi Badan<br/>
-                                <input type="number" id="tinggi" name="tinggi" className="input" value={tinggiBadan()} onInput={handleInputChange} />
+                                <input type="number" id="tinggi" name="tinggi" className="input" value={userDetails.tinggiBadan} onInput={handleInputChange} required/>
                             </label>
 
                             <label htmlFor="hobi">Hobi<br/>
                                 <div className="hobi-checkbox-scroll-box input" id="inputHobi"> {/* Tambahkan class 'input' untuk styling dasar */}
-                                    {daftarHobi().map(hobi => (
+                                    {dataDariServer.listHobi.map(hobi => (
                                         <label key={hobi.hobi_id} className="hobi-option-item">
                                             <input
                                                 type="checkbox"
                                                 value={hobi.hobi_id}
-                                                checked={hobiList().includes(String(hobi.hobi_id))} // Pastikan perbandingan tipe data string
+                                                checked={userDetails.hobiList.includes(String(hobi.hobi_id))} // Pastikan perbandingan tipe data string
                                                 onChange={(e) => handleHobiCheckboxChange(String(hobi.hobi_id), e.currentTarget.checked)}
+                                                required
                                             />
                                             {hobi.nama_hobi}
                                         </label>
@@ -240,20 +253,24 @@ function RegisterPage() {
                         <div className="form-kanan">
                             <label className="upload-label">Upload Foto</label>
                             <div className="upload-box">
-                                <input type="file" name="foto" accept="image/png, image/jpeg" style={{ display: 'none' }} ref={fileInputRef} onChange={handleFileChange} />
+                                <input type="file" name="foto" accept="image/png, image/jpeg" style={{ display: 'none' }} ref={fileInputRef} onChange={handleFileChange} required/>
                                 <button type="button" onClick={handleFileClick} className="choose-btn">
                                     Pilih Foto
                                 </button>
                                 <button type="button" onClick={handleDeleteFile} className="delete-btn">
                                     Hapus
                                 </button>
-                                {profilePicture() && <p>Foto terpilih: {profilePicture().name}</p>}
+                                {userDetails.profilePictureUrl && (
+                                    <div>
+                                        <img src={userDetails.profilePictureUrl} />
+                                    </div>
+                                )}
                             </div>
                         </div>
 
                         <div className="bio-section">
                             <label>Bio<br/>
-                                <textarea name="bio" rows="5" className="input" value={bio()} onInput={handleInputChange} />
+                                <textarea name="bio" rows="5" className="input" value={userDetails.bio} onInput={handleInputChange} required/>
                             </label>
                         </div>
 

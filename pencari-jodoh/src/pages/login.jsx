@@ -1,6 +1,6 @@
-import { A } from '@solidjs/router';
-import { useNavigate } from '@solidjs/router';
-import { createSignal, onMount } from 'solid-js'; // Import createSignal
+import { A, useNavigate } from '@solidjs/router';
+import { createSignal, onMount } from 'solid-js';
+import { createStore } from 'solid-js/store';
 import '../css/login_page.css'; 
 
 function LoginPage() {
@@ -13,78 +13,91 @@ function LoginPage() {
 
         if (authToken && userEmail && userId) {
             console.log('onMount: Sudah ada token, email, dan ID user. Mengarahkan ke halaman dashboard.');
-            nav('/dashboard', { replace: true }); // Arahkan ke halaman utama jika sudah ada token
+            nav('/dashboard', { replace: true });
             return;
         }
     });
 
-    // State untuk input form
-    const [email, setEmail] = createSignal('');
-    const [password, setPassword] = createSignal('');
-    const [errorEmail, setErrorEmail] = createSignal(''); // State untuk pesan error email
-    const [errorPassword, setErrorPassword] = createSignal(''); // State untuk pesan error password
-    const [login, setLogin] = createSignal(false); // State untuk status login
-    const [errorMessage, setErrorMessage] = createSignal(''); // State untuk pesan error umum
+    const[userInfo, setUserInfo] = createStore({
+        email: "",
+        password: "",
+    })
 
-    // Fungsi untuk menangani perubahan input email
-    const handleEmailChange = (event) => {
-        setEmail(event.currentTarget.value);
-        if (!event.currentTarget.value.trim()) {
-            setErrorEmail('Email tidak boleh kosong.'); // Set pesan error jika email kosong
-        } else {
-            setErrorEmail('');
-        }
-    };
+    const[userInfoError, setUserInfoError] = createStore({
+        emailError: "",
+        passwordError: "",
+    })
+    
+    const[login, setLogin] = createSignal(false);
+    const[errorMessage, setErrorMessage] = createSignal("");
 
-    // Fungsi untuk menangani perubahan input password
-    const handlePasswordChange = (event) => {
-        setPassword(event.currentTarget.value);
-        if (!event.currentTarget.value.trim()) {
-            setErrorPassword('Password tidak boleh kosong.'); // Set pesan error jika password kosong
-        } else {
-            setErrorPassword('');
-        }
-    };
-
-    const disableLoginButton = () => {
-        // Cek apakah email dan password valid
-        if(!email().trim() || !password().trim() || errorEmail() || errorPassword()) {
-            return {
-                cursor: 'not-allowed',
-                opacity: 0.5,
-            };
+    const handleLogin = () => {
+        if((userInfo.email !== "" && userInfo.password !== "") && (userInfoError.emailError === "" && userInfoError.passwordError === "")) {
+            setLogin(true);
         }else {
-            setLogin(true); // Set status login menjadi true jika valid
+            setLogin(false);
+        }
+    };
+
+    const handleEmailChange = (event) => {
+        setUserInfo('email', event.currentTarget.value.trim());
+        if(userInfo.email === "") {
+            setUserInfoError('emailError', 'Email tidak boleh kosong!');
+        }else {
+            setUserInfoError('emailError', '');
+        }
+
+        handleLogin()
+    };
+
+    const handlePasswordChange = (event) => {
+        setUserInfo('password', event.currentTarget.value.trim());
+        if(userInfo.password === "") {
+            setUserInfoError('passwordError', 'Password tidak boleh kosong!');
+        }else {
+            setUserInfoError('passwordError', '');
+        }
+
+        handleLogin()
+    };
+
+
+    const loginBtnStyle = () => {
+        if(login()) {
             return {
                 cursor: 'pointer',
             };
+        }else {
+            return {
+                cursor: 'not-allowed',
+                opacity: 0.5, 
+            };
         }
     };
-    // Fungsi untuk menangani tombol Log In
+
     const handleLoginBtn = async (event) => {
         if(login()) {
-            event.preventDefault(); // Mencegah reload halaman saat form disubmit
+            event.preventDefault();
     
             try {
-                const response = await fetch('http://localhost:3001/users/login', {
+                const response = await fetch('http://localhost:3001/user/login', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        email: email(),
-                        password: password(),
+                        email: userInfo.email,
+                        password: userInfo.password,
                     }),
                 });
     
                 if (response.ok) {
                     const result = await response.json();
-                    console.log('Login berhasil:', result);
                     
                     localStorage.setItem('authToken', result.token);
                     localStorage.setItem('userEmail', result.email);
                     localStorage.setItem('userId', result.userId);
-                    nav('/dashboard'); // Ganti dengan path dashboard Anda
+                    nav('/dashboard', { replace: true });
                 } else {
                     const error = await response.json();
                     setErrorMessage('Login gagal. Silakan coba lagi.');
@@ -101,33 +114,32 @@ function LoginPage() {
             <div class="login-page-background">
                 <div id="containerLogin">
                     <h2>Log In</h2>
-                    {/* Menggunakan form untuk submit data */}
                     <form onSubmit={handleLoginBtn}> 
                         <label htmlFor="email">Email<br/>
                             <input
                                 type="email"
                                 name="email"
                                 class="input"
-                                value={email()} // Bind value ke state
-                                onInput={handleEmailChange} // Tangani perubahan input
+                                value={userInfo.email}
+                                onInput={handleEmailChange}
                                 required
                             />
                         </label> 
-                        <p style={{ color: 'red' }}>{errorEmail()}</p> {/* Tampilkan pesan error email */}
+                        <p style={{ color: 'red' }}>{userInfoError.emailError}</p>
                         <label htmlFor="password">Password<br/>
                             <input
                                 type="password"
                                 name="password"
                                 class="input"
-                                value={password()} // Bind value ke state
-                                onInput={handlePasswordChange} // Tangani perubahan input
+                                value={userInfo.password}
+                                onInput={handlePasswordChange}
                                 required
                             />
                         </label> 
-                        <p style={{ color: 'red' }}>{errorPassword()}</p> {/* Tampilkan pesan error password */}
+                        <p style={{ color: 'red' }}>{userInfoError.passwordError}</p>
 
-                        <button type="submit" class="button" style={disableLoginButton()}>Log In</button> {/* type="submit" untuk form */}
-                        <p style={{ color: 'red' }}>{errorMessage()}</p> {/* Tampilkan pesan error umum */}
+                        <button type="submit" class="button" style={loginBtnStyle()}>Log In</button>
+                        <p style={{ color: 'red' }}>{errorMessage()}</p>
                     </form>
                     <br />
                     <span>Don't have an account? <A href='/signup' style={{ color: 'green', 'text-decoration': 'none' }}>Sign Up</A></span>
