@@ -1,7 +1,7 @@
 import '../css/dashboard_page.css'; 
 import Header from './header';
 import { useNavigate } from '@solidjs/router';
-import { createSignal, onMount } from 'solid-js';
+import { createSignal, onMount, createEffect, Show } from 'solid-js';
 import { AiFillHeart } from 'solid-icons/ai'
 import { ImCross } from 'solid-icons/im'
 
@@ -23,6 +23,16 @@ function DashboardPage() {
     const [loggedInUserEmail, setLoggedInUserEmail] = createSignal('');
     const [loggedInUserId, setLoggedInUserId] = createSignal(null);
 
+    const [kotaOptions, setKotaOptions] = createSignal([]);
+    const [agamaOptions, setAgamaOptions] = createSignal([]);
+    const [kepribadianOptions, setKepribadianOptions] = createSignal([]);
+    
+    const [selectedKota, setSelectedKota] = createSignal('');
+    const [selectedAgama, setSelectedAgama] = createSignal('');
+    const [selectedKepribadian, setSelectedKepribadian] = createSignal('');
+
+    const [showFilters, setShowFilters] = createSignal(false);
+
     const calculateAge = (dobstring) => {
         const dob = new Date(dobstring);
         const sekarang = new Date();
@@ -41,66 +51,88 @@ function DashboardPage() {
 
     onMount(async () => {
         console.log('onMount: Menjalankan operasi fetch.');
-
         const authToken = localStorage.getItem('authToken');
         const userEmail = localStorage.getItem('userEmail');
         const userId = localStorage.getItem('userId');
-        const namaUser = localStorage.getItem('nama');
-        const jenisKelaminUser = localStorage.getItem('jenisKelamin');
 
         if (!authToken || !userEmail || !userId) {
             console.log('onMount: Tidak ada token, email, atau ID user. Mengarahkan ke halaman login.');
-            nav('/login', { replace: true }); // Arahkan ke login jika tidak ada token
+            nav('/login', { replace: true });
+            return;
+        }
+        
+        // Mengambil data untuk mengisi dropdown filter
+        try {
+            const [kotaRes, agamaRes, kepribadianRes] = await Promise.all([
+                fetch('http://localhost:3001/data/kota'),
+                fetch('http://localhost:3001/data/agama'),
+                fetch('http://localhost:3001/data/kepribadian')
+            ]);
+            
+            const kotaData = await kotaRes.json();
+            const agamaData = await agamaRes.json();
+            const kepribadianData = await kepribadianRes.json();
+            
+            setKotaOptions(kotaData.kota || []);
+            setAgamaOptions(agamaData.agama || []);
+            setKepribadianOptions(kepribadianData.kepribadian || []);
+        } catch (err) {
+            console.error("Gagal mengambil data filter dropdown:", err);
+            setError(err);
+        }
+
+        setLoggedInUserEmail(userEmail);
+        setLoggedInUserId(userId);
+    });
+
+    createEffect(async () => {
+        const userId = loggedInUserId();
+        // Jangan jalankan jika ID user belum ada (komponen belum siap)
+        if (!userId) {
             return;
         }
 
-        setLoggedInUserEmail(userEmail); // Set email user yang login
-        setLoggedInUserId(userId);
+        // Baca semua sinyal filter agar SolidJS melacak perubahan mereka
+        const kota = selectedKota();
+        const agama = selectedAgama();
+        const kepribadian = selectedKepribadian();
+        const jenisKelaminUser = localStorage.getItem('jenisKelamin');
+        
+        console.log("createEffect terpicu! Memuat pengguna dengan filter:", { kepribadian, kota, agama });
 
         try {
             const response = await fetch('http://localhost:3001/data/users', {
                 method: 'POST',
-                headers: {
-                        'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                        idUser: userId,
-                        jenisKelamin: jenisKelaminUser,
+                    idUser: userId,
+                    jenisKelamin: jenisKelaminUser,
+                    kota_id: kota || null,
+                    agama_id: agama || null,
+                    kepribadian_id: kepribadian || null,
                 }),
             });
-
-            console.log('onMount: Fetch response received. Status:', response.status);
-
+            
             if (!response.ok) {
-                const errorText = await response.text();
-                console.error('onMount: Server response not OK', response.status, errorText);
-                throw new Error(`HTTP error! status: ${response.status} - ${response.statusText || errorText}`);
+               const errorText = await response.text();
+               throw new Error(`Gagal mengambil data pengguna: ${errorText}`);
             }
-
+            
             const data = await response.json();
-            console.log('onMount: Data received from API:', data);
-            console.log('onMount: Data[0]:', data[0]); // Log data pertama setelah fetch
+            
+            const usersUmur = Array.isArray(data.users) 
+                ? data.users.map(user => ({ ...user, umur: calculateAge(user.tanggal_lahir) }))
+                : [];
 
-            const usersData = data.users;
-
-            if (Array.isArray(usersData)) {
-                const usersUmur = usersData.map(user => ({
-                    ...user,
-                    umur: calculateAge(user.tanggal_lahir)
-                }));
-
-                setUsers([...usersUmur]);
-                console.log('onMount: Users signal updated. Current users():', users());
-            } else {
-                console.error('onMount: Data received is not an array:', usersData);
-                setError(new Error('Data yang diterima dari server bukan format yang diharapkan (array).'));
-            }
-
+            setUsers(usersUmur);
+            
         } catch (err) {
-            console.error('onMount: Error during fetch or data processing:', err);
+            console.error("Fetch users error:", err);
             setError(err);
+            setUsers([]);
         } finally {
-            console.log('Fetch Data Completed.');
+            setCardIndex(0);
+            setAction("");
         }
     });
 
@@ -121,53 +153,67 @@ function DashboardPage() {
     };
 
     const likeCard = () => {
-        // Tambahkan logika "like" di sini
+        if (cardIndex() >= users().length) return;
         console.log('Liked:', users()[cardIndex()]);
+        setAction("like");
         nextCard();
-        setAction((prev) => "like")
     };
 
     const dislikeCard = () => {
-        // Tambahkan logika "dislike" di sini
+        if (cardIndex() >= users().length) return;
         console.log('Disliked:', users()[cardIndex()]);
+        setAction("dislike")
         nextCard();
-        setAction((prev) => "dislike")
     };
 
     const cardStyle = (index) => {
+        const list = users();
         if(index < cardIndex()) {
-            if(action() === "like") {
-                return {
-                    "z-index": users().length - index,
-                    top: '0px',
-                    left: "0px",
-                    opacity: '0',
-                    transform: 'translateX(500px) scale(0.8)',
-                    transition: 'transform 0.3s ease-in-out, opacity 0.3s ease-in-out, top 0.3s ease-in-out',
-                };
-            }else {
-                return {
-                    "z-index": users().length - index,
-                    top: '0px',
-                    left: "0px",
-                    opacity: '0',
-                    transform: 'translateX(-500px) scale(0.8)',
-                    transition: 'transform 0.3s ease-in-out, opacity 0.3s ease-in-out, top 0.3s ease-in-out',
-                };
-            }
-        }else {
             return {
-                "z-index": users().length - index,
-                top: '0px',
-                left: index * 50 + "px",
+                "z-index": list.length - index,
+                opacity: '0',
+                transform: action() === "like" ? 'translateX(500px) scale(0.8)' : 'translateX(-500px) scale(0.8)',
+                transition: 'transform 0.3s ease-in-out, opacity 0.3s ease-in-out',
             };
         }
+        return {
+            "z-index": list.length - index,
+            // Mengatur posisi dan skala untuk efek tumpukan
+            transform: `scale(${1 - (index - cardIndex()) * 0.05}) translateY(${(index - cardIndex()) * -10}px)`,
+            // Hanya kartu teratas yang opak, sisanya sedikit transparan
+            opacity: index === cardIndex() ? '1' : (index < cardIndex() + 3 ? '0.5' : '0'),
+            transition: 'transform 0.3s ease-in-out, opacity 0.3s ease-in-out',
+            // Hapus 'left' agar kartu menumpuk di tengah
+        };
     };
 
     return (
         <div>
             <Header/>
             <div class="container">
+                <div class="filter-container">
+                    <Show
+                        when={showFilters()} fallback={
+                            <button class="filter-toggle-button" onClick={() => setShowFilters(true)}>
+                                Cari Kriteria Anda
+                            </button>
+                        }
+                    >
+                        <select class="filter-select" value={selectedKepribadian()} onChange={(e) => setSelectedKepribadian(e.target.value)}>
+                            <option value="">Pilih Kepribadian</option>
+                            {kepribadianOptions().map(p => <option value={p.kepribadian_id}>{p.jenis_kepribadian}</option>)}
+                        </select>
+                        <select class="filter-select" value={selectedKota()} onChange={(e) => setSelectedKota(e.target.value)}>
+                            <option value="">Pilih Kota</option>
+                            {kotaOptions().map(k => <option value={k.kota_id}>{k.nama_kota}</option>)}
+                        </select>
+                        <select class="filter-select" value={selectedAgama()} onChange={(e) => setSelectedAgama(e.target.value)}>
+                            <option value="">Pilih Agama</option>
+                            {agamaOptions().map(a => <option value={a.agama_id}>{a.nama_agama}</option>)}
+                        </select>
+                    </Show>
+                </div>
+
                 <div class="listUser">
                     {users().map((user, index) => (
                         <div id={user.user_id} class="profile" style={cardStyle(index)}>
@@ -189,7 +235,7 @@ function DashboardPage() {
                     </button>
                     <button class="control-button like-button" onClick={likeCard}>
                         <AiFillHeart size={40} />
-                    </button>
+                    </button>   
                 </div>
             </div>
         </div>
