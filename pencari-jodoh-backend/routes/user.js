@@ -6,7 +6,7 @@ const { getLikedUsers, getProfilePicture } = require('../controllers/likedContro
 
 router.post('/login', loginController);
 router.post('/getLikedUsers', getLikedUsers);
-// router.post('/register', userController.registerUser);
+router.post('/register', registerController);
 // router.get('/getUsers', userController.authenticateToken, userController.getAllUsers);
 // router.get('/kota', userController.getAllKota);
 // router.get('/hobi', userController.getAllHobi);
