@@ -2,8 +2,10 @@ const express = require('express');
 const router = express.Router();
 const loginController = require('../controllers/loginController')
 const registerController = require('../controllers/registerController')
+const { getLikedUsers, getProfilePicture } = require('../controllers/likedController');
 
 router.post('/login', loginController);
+router.post('/getLikedUsers', getLikedUsers);
 // router.post('/register', userController.registerUser);
 // router.get('/getUsers', userController.authenticateToken, userController.getAllUsers);
 // router.get('/kota', userController.getAllKota);
