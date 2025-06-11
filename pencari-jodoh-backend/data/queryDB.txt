@@ -11,10 +11,10 @@ CREATE TABLE users (
     nama VARCHAR(255) NOT NULL,
     tanggal_lahir DATE NOT NULL,
     jenis_kelamin VARCHAR(10) NOT NULL CHECK (jenis_kelamin IN ('Pria', 'Wanita')),
-    sifat_kepribadian VARCHAR(10),
     kota_id INTEGER REFERENCES kota(kota_id), -- Foreign key ke tabel kota
+	kepribadian_id INTEGER REFERENCES kepribadian(kepribadian_id),
+	agama_id INTEGER REFERENCES agama(agama_id),
     pendidikan_terakhir VARCHAR(50),
-    agama VARCHAR(50),
     tinggi_badan INTEGER,
     pekerjaan VARCHAR(255),
     profile_picture BYTEA,
@@ -36,6 +36,16 @@ CREATE TABLE kota (
 CREATE TABLE hobi (
     hobi_id SERIAL PRIMARY KEY,
     nama_hobi VARCHAR(255) UNIQUE NOT NULL
+);
+
+CREATE TABLE kepribadian (
+    kepribadian_id SERIAL PRIMARY KEY,
+    jenis_kepribadian VARCHAR(255) UNIQUE NOT NULL
+);
+
+CREATE TABLE agama (
+    agama_id SERIAL PRIMARY KEY,
+    nama_agama VARCHAR(255) UNIQUE NOT NULL
 );
 
 CREATE TABLE user_hobi (
@@ -160,6 +170,33 @@ INSERT INTO hobi (nama_hobi) VALUES
 ('Hiking'),
 ('Bermain Musik');
 
+INSERT INTO kepribadian (jenis_kepribadian) VALUES
+('ISTJ'),
+('ISFJ'),
+('INFJ'),
+('INTJ'),
+('ISTP'),
+('ISFP'),
+('INFP'),
+('INTP'),
+('ESTP'),
+('ESFP'),
+('ENFP'),
+('ENTP'),
+('ESTJ'),
+('ESFJ'),
+('ENFJ'),
+('ENTJ');
+
+INSERT INTO agama (nama_agama) VALUES
+('Islam'),
+('Kristen'),
+('Katolik'),
+('Hindu'),
+('Buddha'),
+('Konghucu'),
+('Lainnya');
+
 SELECT *
 FROM users
 
@@ -171,3 +208,9 @@ FROM kota
 
 SELECT *
 FROM hobi
+
+SELECT *
+FROM kepribadian
+
+SELECT *
+FROM agama
