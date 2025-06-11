@@ -3,17 +3,20 @@ DROP TABLE IF EXISTS liked_users CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS hobi CASCADE;
 DROP TABLE IF EXISTS kota CASCADE;
+DROP TABLE IF EXISTS kepribadian CASCADE;
+DROP TABLE IF EXISTS kota CASCADE;
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 CREATE TABLE users (
     user_id SERIAL PRIMARY KEY,
-	email VARCHAR(255) UNIQUE NOT NULL,
-	password VARCHAR(255) NOT NULL,
+ email VARCHAR(255) UNIQUE NOT NULL,
+ password VARCHAR(255) NOT NULL,
     nama VARCHAR(255) NOT NULL,
     tanggal_lahir DATE NOT NULL,
     jenis_kelamin VARCHAR(10) NOT NULL CHECK (jenis_kelamin IN ('Pria', 'Wanita')),
     kota_id INTEGER REFERENCES kota(kota_id), -- Foreign key ke tabel kota
-	kepribadian_id INTEGER REFERENCES kepribadian(kepribadian_id),
-	agama_id INTEGER REFERENCES agama(agama_id),
+ kepribadian_id INTEGER REFERENCES kepribadian(kepribadian_id),
+ agama_id INTEGER REFERENCES agama(agama_id),
     pendidikan_terakhir VARCHAR(50),
     tinggi_badan INTEGER,
     pekerjaan VARCHAR(255),
@@ -53,6 +56,30 @@ CREATE TABLE user_hobi (
     hobi_id INTEGER REFERENCES hobi(hobi_id),
     PRIMARY KEY (user_id, hobi_id)
 );
+
+CREATE TABLE percakapan (
+    id SERIAL PRIMARY KEY,
+    user1_id INTEGER NOT NULL,
+    user2_id INTEGER NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    CONSTRAINT fk_user1 FOREIGN KEY(user1_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    CONSTRAINT fk_user2 FOREIGN KEY(user2_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    CONSTRAINT check_user_order CHECK (user1_id < user2_id),
+    UNIQUE (user1_id, user2_id)
+);
+
+CREATE TABLE chats (
+    id BIGSERIAL PRIMARY KEY,
+    percakapan_id INTEGER NOT NULL,
+    sender_id INTEGER NOT NULL,
+    content TEXT NOT NULL, -- Isi dari pesan
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    CONSTRAINT fk_percakapan FOREIGN KEY(percakapan_id) REFERENCES percakapan(id) ON DELETE CASCADE,
+    CONSTRAINT fk_sender FOREIGN KEY(sender_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+-- untuk mengambil riwayat chat dengan cepat
+CREATE INDEX idx_chats_percakapan_id ON chats(percakapan_id);
 
 INSERT INTO kota (nama_kota) VALUES
 ('Banda Aceh'),
@@ -197,6 +224,36 @@ INSERT INTO agama (nama_agama) VALUES
 ('Konghucu'),
 ('Lainnya');
 
+INSERT INTO users (
+    email,
+    password,
+    nama,
+    tanggal_lahir,
+    jenis_kelamin,
+    kota_id,
+    kepribadian_id,
+    agama_id,
+    pendidikan_terakhir,
+    tinggi_badan,
+    pekerjaan,
+    profile_picture, -- Jika tidak ada gambar, gunakan NULL
+    bio
+) VALUES (
+    'manuk@gmail.com',
+    crypt('manukmanukmanuk', gen_salt('bf', 10)),
+    'manuk',
+    '2001-01-01', -- Format YYYY-MM-DD
+    'Pria', -- 'Pria' atau 'Wanita'
+    2, -- Ganti dengan ID kota yang ada di tabel 'kota'
+    3, -- Ganti dengan ID kepribadian yang ada di tabel 'kepribadian'
+    2, -- Ganti dengan ID agama yang ada di tabel 'agama'
+    'S3',
+    165, -- Tinggi Badan dalam cm
+    'Desainer Grafis',
+    pg_read_binary_file('C:/gbr/menyerah.jpg'), -- Jika tidak ada gambar, gunakan NULL. Atau gunakan BYTEA literal jika Anda punya.
+    'Aku suka main pingpong'
+);
+
 SELECT *
 FROM users
 
@@ -214,3 +271,4 @@ FROM kepribadian
 
 SELECT *
 FROM agama
+
