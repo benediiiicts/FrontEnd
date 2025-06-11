@@ -97,6 +97,8 @@ function LoginPage() {
                     localStorage.setItem('authToken', result.token);
                     localStorage.setItem('userEmail', result.email);
                     localStorage.setItem('userId', result.userId);
+                    localStorage.setItem('jenisKelamin', result.jenisKelamin);
+                    localStorage.setItem('nama', result.nama);
                     nav('/dashboard', { replace: true });
                 } else {
                     const error = await response.json();

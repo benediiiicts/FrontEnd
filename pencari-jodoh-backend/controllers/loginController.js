@@ -12,7 +12,7 @@ const loginUser = async (req, res) => {
     }
 
     try {
-        const userQuery = 'SELECT user_id, email, password FROM users WHERE email = $1';
+        const userQuery = 'SELECT user_id, email, password, jenis_kelamin, nama FROM users WHERE email = $1';
         const result = await pool.query(userQuery, [email]);
 
         if (result.rows.length === 0) {
@@ -34,7 +34,9 @@ const loginUser = async (req, res) => {
                 message: 'Login berhasil!',
                 token: token,
                 userId: user.user_id,
-                email: user.email
+                email: user.email,
+                jenisKelamin: user.jenis_kelamin,
+                nama: user.nama
             });
         } else {
             res.status(401).json({ error: 'Email atau password salah.' });
