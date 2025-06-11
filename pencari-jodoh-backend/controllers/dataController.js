@@ -40,9 +40,28 @@ const getAllKepribadian = async (req, res) => {
     }
 };
 
+const getAllUsers = async (req, res) => {
+    const {idUser, jenisKelamin} = req.body;
+    try{
+        const query = 'SELECT user_id, nama, tanggal_lahir, profile_picture FROM users WHERE user_id != $1 AND jenis_kelamin != $2';
+        const result = await pool.query(query, [idUser, jenisKelamin]);
+        const users = result.rows.map(user => {
+            const imgType = 'image/jpeg/png';
+            const base64Img = user.profile_picture.toString('base64');
+            user.profile_picture = `data:${imgType};base64,${base64Img}`;
+            return user;
+        });
+        res.status(200).json({ users: result.rows });
+    }catch (error) {
+        console.error('Error fetching users:', error);
+        res.status(500).json({ error: 'Gagal mengambil daftar users' });
+    }
+};
+
 module.exports = {
     getAllKota,
     getAllHobi,
     getAllAgama,
-    getAllKepribadian
+    getAllKepribadian,
+    getAllUsers
 };
