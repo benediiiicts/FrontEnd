@@ -22,10 +22,10 @@ function RegisterPage() {
         nama: '',
         tanggalLahir: '',
         jenisKelamin: '',
-        sifatKepribadian: '',
+        kepribadian_id: null,
         idKota: null,
         pendidikanTerakhir: '',
-        agama: '',
+        agama_id: null,
         tinggiBadan: null,
         pekerjaan: '',
         hobiList: [],
@@ -41,16 +41,19 @@ function RegisterPage() {
         listAgama: [],
     });
 
+    const [uniqueError, setUniqueError] = createSignal('');
+    const [hobiKosongError, setHobiKosongError] = createSignal('');
+
     const handleInputChange = (event) => {
         const { name, value } = event.currentTarget;
         switch (name) {
             case 'nama': setUserDetails('nama', value); break;
             case 'tanggalLahir': setUserDetails('tanggalLahir', value); break;
             case 'jenisKelamin': setUserDetails('jenisKelamin', value); break;
-            case 'sifat': setUserDetails('sifatKepribadian', value); break;
+            case 'sifat': setUserDetails('kepribadian_id', value); break;
             case 'kota': setUserDetails('idKota', value); break; 
             case 'pendidikan': setUserDetails('pendidikanTerakhir',value); break;
-            case 'agama': setUserDetails('agama', value); break;
+            case 'agama': setUserDetails('agama_id', value); break;
             case 'tinggi': setUserDetails('tinggiBadan', parseInt(value)); break;
             case 'pekerjaan': setUserDetails('pekerjaan', value); break;
             case 'bio': setUserDetails('bio', value); break;
@@ -83,6 +86,19 @@ function RegisterPage() {
         setUserDetails('profilePicture', null);
         setUserDetails('profilePictureUrl', null);
     };
+
+    const registerBtnStyle = () => {
+        if(hobiKosongError()) {
+            return {
+                cursor: 'not-allowed',
+                opacity: 0.5,
+            };
+        }else {
+            return {
+                cursor: 'pointer',
+            };
+        }
+    }
 
     // Fetch data kota dan hobi dari server saat komponen mount
     onMount(async () => {
@@ -138,13 +154,13 @@ function RegisterPage() {
         formData.append('nama', userDetails.nama);
         formData.append('tanggal_lahir', userDetails.tanggalLahir);
         formData.append('jenis_kelamin', userDetails.jenisKelamin);
-        formData.append('sifat_kepribadian', userDetails.sifatKepribadian);
-        formData.append('kota_id', userDetails.idKota); // Kirim kota_id
+        formData.append('kepribadian_id', userDetails.kepribadian_id);
+        formData.append('kota_id', userDetails.idKota);
         formData.append('pendidikan_terakhir', userDetails.pendidikanTerakhir);
-        formData.append('agama', userDetails.agama);
+        formData.append('agama_id', userDetails.agama_id);
         formData.append('pekerjaan', userDetails.pekerjaan);
         formData.append('pendidikanTerakhir', userDetails.pendidikanTerakhir);
-        formData.append('hobi', JSON.stringify(userDetails.hobiList)); // Kirim array hobi sebagai JSON
+        formData.append('hobiList', JSON.stringify(userDetails.hobiList));
         formData.append('bio', userDetails.bio);
         formData.append('profile_picture', userDetails.profilePicture);
         formData.append('tinggi_badan', userDetails.tinggiBadan);
@@ -162,6 +178,9 @@ function RegisterPage() {
             } else {
                 const error = await response.json();
                 console.error('Registrasi gagal:', error);
+                if(response.status === 409) {
+                    setUniqueError('Email sudah terdaftar. Silakan gunakan email lain.');
+                }
             }
         } catch (error) {
             console.error('Error saat mengirim data registrasi:', error);
@@ -241,13 +260,14 @@ function RegisterPage() {
                                                 value={hobi.hobi_id}
                                                 checked={userDetails.hobiList.includes(String(hobi.hobi_id))} // Pastikan perbandingan tipe data string
                                                 onChange={(e) => handleHobiCheckboxChange(String(hobi.hobi_id), e.currentTarget.checked)}
-                                                required
                                             />
                                             {hobi.nama_hobi}
                                         </label>
                                     ))}
                                 </div>
                             </label>
+
+                            <p></p>
                         </div>
 
                         <div className="form-kanan">
@@ -275,8 +295,10 @@ function RegisterPage() {
                         </div>
 
                         <div className="button-wrapper">
-                            <button type="submit" className="button">Sign Up</button>
+                            <button type="submit" className="button" style={registerBtnStyle}>Sign Up</button>
                         </div>
+
+                        <p style={{ color: 'red' }}>{uniqueError()}</p>
                     </form>
                 </div>
             </div>
