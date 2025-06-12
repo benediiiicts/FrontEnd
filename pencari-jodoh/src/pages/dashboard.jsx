@@ -152,18 +152,50 @@ function DashboardPage() {
         }
     };
 
-    const likeCard = () => {
+    const likeCard = async () => {
         if (cardIndex() >= displayedUsers().length) return;
         const likedUser = displayedUsers()[cardIndex()];
         console.log('Liked:', likedUser);
         setAction("like");
-        nextCard();
-    };
 
-    const dislikeCard = () => {
+        // Kirim permintaan ke endpoint /data/like
+        try {
+            await fetch('http://localhost:3001/data/like', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                liking_user_id: loggedInUserId(),
+                liked_user_id: likedUser.user_id
+            })
+            });
+        } catch (err) {
+            console.error("Error sending like:", err);
+        }
+
+        nextCard();
+        };
+
+    // Ubah fungsi dislikeCard menjadi async
+    const dislikeCard = async () => {
         if (cardIndex() >= displayedUsers().length) return;
-        console.log('Disliked:', displayedUsers()[cardIndex()]);
+        const dislikedUser = displayedUsers()[cardIndex()];
+        console.log('Disliked:', dislikedUser);
         setAction("dislike");
+
+        // Kirim permintaan ke endpoint /data/dislike
+        try {
+            await fetch('http://localhost:3001/data/dislike', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                disliking_user_id: loggedInUserId(),
+                disliked_user_id: dislikedUser.user_id
+            })
+            });
+        } catch (err) {
+            console.error("Error sending dislike:", err);
+        }
+
         nextCard();
     };
 
