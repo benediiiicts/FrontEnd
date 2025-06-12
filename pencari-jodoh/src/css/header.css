@@ -4,6 +4,7 @@
     display: flex;
     align-items: center;
     position: relative;
+    color: white;
 }
 
 .independent-header-left-items {

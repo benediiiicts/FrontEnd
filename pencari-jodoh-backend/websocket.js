@@ -1,5 +1,5 @@
 const { Server } = require("socket.io");
-const initializeChat = require('./controllers/chatController');
+const { initializeChat } = require('./controllers/chatController');
 
 /**
  menerima instance server http

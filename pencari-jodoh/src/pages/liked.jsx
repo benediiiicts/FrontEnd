@@ -1,72 +1,116 @@
-import { createSignal, For } from 'solid-js';
-import { useNavigate } from '@solidjs/router';
-import Header from './header';
-import '../css/liked_page.css';
+    import { onMount,createSignal, For } from 'solid-js';
+    import { useNavigate } from '@solidjs/router';
+    import Header from './header';
+    import '../css/liked_page.css';
 
-const BackIconPlaceholder = () => <span>[Back]</span>;
-const UserIconPlaceholder = () => <span>[User]</span>;
-const ItemIconPlaceholder = () => <img src="https://images.unsplash.com/photo-1526413232644-8a40f03cc03b?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Ikon Item" class="item-icon-image"/>;
+/*     const BackIconPlaceholder = () => <span>[Back]</span>;
+    const UserIconPlaceholder = () => <span>[User]</span>; */
 
-function LikedItemCard(props) {
+
+    //menampilkan data untuk masing masing liked user
+    function LikedItemCard(props) {
+    const { item: LikedUser, onClick } = props;
     return (
-        <div class="liked-item-card">
-            <ItemIconPlaceholder />
+        <div class="liked-item-card" onClick={() => onClick(LikedUser)}>
+        <img src={LikedUser.profile_picture} class="item-icon-image"/>
+        <div class="liked-item-info">
+            <h3>{LikedUser.nama}</h3>
+            <p>{LikedUser.bio}</p>
+            <p>{LikedUser.nama_kota}</p>
+        </div>
         </div>
     );
-}
+    }
 
-function LikedPage() {
-    const [likedItems, setLikedItems] = createSignal([
-        { id: 1, name: 'Item 1' },
-        { id: 2, name: 'Item 2' },
-        { id: 3, name: 'Item 3' },
-        { id: 4, name: 'Item 4' },
-    ]);
 
+    function LikedPage() {
+    //membuat signal
+    const [likedUsers, setLikedUsers] = createSignal([]);
     const [currentPage, setCurrentPage] = createSignal(1);
-    const totalPages = 3;
-
-    const nav = useNavigate();
+    const [totalPages, setTotalPages] = createSignal(1);
+    const [error, setError] = createSignal(null);
+    const userPerPage = 4;
     
-    const handleGoHome = () => {
-        nav('/dashboard');
-    };
+    //ini mengambil userId dari localStorage(untuk id liking_user)
+    const userIdTest = localStorage.getItem('userId');
+    //id buat melakukan testing
+    // const userIdTest=8;
+    const nav = useNavigate();
 
-    const handleProfileClick = () => {
-        nav('/profile');
-    };
+    onMount(async () => {
+        try {
+            //melakukan fetch untuk mengambil data
+            const response = await fetch(`http://localhost:3001/user/getLikedUsers`, {
+                method: 'POST',
+                headers: {
+                'Content-Type': 'application/json',
+                },
+                //akan mengirimkan liking_user_id untuk nantinya digunakan di database
+                body: JSON.stringify({ liking_user_id: userId }),
+            });
 
-    const handlePageChange = (pageNumber) => {
-        setCurrentPage(pageNumber);
-        console.log("Page changed to:", pageNumber);
-    };
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.message || 'Gagal mengambil data');
 
-    return (
-        <div class="liked-page-overall-background">
-            <Header/>
-            <main class="liked-page-main-content">
-                <div id="likedItemsContainer">
-                    <div class="items-grid">
-                        <For each={likedItems()} fallback={<div>No liked items yet.</div>}>
-                            {(item) => <LikedItemCard item={item} onClick={handleProfileClick}/>}
-                        </For>
+            //mengisi data dari server 
+            setLikedUsers(data.liked_users || []);
+            setTotalPages(Math.ceil((data.liked_users || []).length / userPerPage));
+        } catch (err) {
+        setError(err.message);
+        }
+    });
+        
+        //untuk pindah ke dashboard
+        const handleGoHome = () => {
+            nav('/dashboard');
+        };
+        //untuk pindah ke halaman profile
+        const handleProfileClick = () => {
+            nav('/profile');
+        };
+        //untuk mengubah halaman paginasi
+        const handlePageChange = (pageNumber) => {
+            setCurrentPage(pageNumber);
+            console.log("Page changed to:", pageNumber);
+        };
+
+        //melakukan paginasi
+        const paginatedUsers = () => {
+        const startIndex = (currentPage() - 1) * userPerPage;
+        const endIndex = startIndex + userPerPage;
+        return likedUsers().slice(startIndex, endIndex);
+        };
+
+
+        return (
+            <div class="liked-page-overall-background">
+                <Header/>
+                <main class="liked-page-main-content">
+                    <div id="likedItemsContainer">
+                        <div class="items-grid">
+                            {/* iterasi data berdasarkan paginatedUsers */}
+                            <For each={paginatedUsers()} fallback={<div>No liked yet.</div>}>
+                                {/* untuk setiap item maka akan di card(dijadikan 1 frame) */}
+                                {(item) => <LikedItemCard item={item} onClick={handleProfileClick}/>}
+                            </For>
+                        </div>
+                        <nav class="pagination" aria-label="Page navigation">
+                            {/* membuat tombol sebanyak totalPages */}
+                            <For each={Array.from({ length: totalPages() }, (_, i) => i + 1)}>
+                                {(pageNumber) => (
+                                    <button
+                                        class="page-button"
+                                        classList={{ active: currentPage() === pageNumber }}
+                                        onClick={() => handlePageChange(pageNumber)}>
+                                        {pageNumber}
+                                    </button>
+                                )}
+                            </For>
+                        </nav>
                     </div>
-                    <nav class="pagination" aria-label="Page navigation">
-                        <For each={Array.from({ length: totalPages }, (_, i) => i + 1)}>
-                            {(pageNumber) => (
-                                <button
-                                    class="page-button"
-                                    classList={{ active: currentPage() === pageNumber }}
-                                    onClick={() => handlePageChange(pageNumber)}>
-                                    {pageNumber}
-                                </button>
-                            )}
-                        </For>
-                    </nav>
-                </div>
-            </main>
-        </div>
-    );
-}
+                </main>
+            </div>
+        );
+    }
 
-export default LikedPage;
+    export default LikedPage;

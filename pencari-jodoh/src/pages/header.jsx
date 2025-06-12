@@ -11,7 +11,9 @@ function Header() {
     let profileMenuRef;
 
     // State untuk menyimpan informasi user yang login
+
     const [loggedInUserEmail, setLoggedInUserEmail] = createSignal('');
+    const [loggedInUserName, setLoggedInUserName] = createSignal('');
     const [loggedInUserId, setLoggedInUserId] = createSignal(null);
     const [loggedInUserProfilePicture, setLoggedInUserProfilePicture] = createSignal(null);
 
@@ -28,12 +30,13 @@ function Header() {
     // Fungsi untuk menangani logout
     const handleLogout = () => {
         localStorage.removeItem('authToken');
-        localStorage.removeItem('userEmail');
         localStorage.removeItem('userId');
         localStorage.removeItem('nama');
         localStorage.removeItem('jenisKelamin');
 
         setLoggedInUserEmail('');
+        setLoggedInUserName(null);
+
         setLoggedInUserId(null);
         setLoggedInUserProfilePicture(null);
 
@@ -52,14 +55,18 @@ function Header() {
     };
 
     onMount(() => {
-        const email = localStorage.getItem('userEmail');
         const userId = localStorage.getItem('userId');
+        const nama = localStorage.getItem('nama');
 
-        if (email) {
-            setLoggedInUserEmail(email);
+        if (nama) {
+            setLoggedInUserName(nama);
         }
+
         if (userId) {
             setLoggedInUserId(userId);
+        }
+        if (nama) {
+            setLoggedInUserName(nama);
         }
 
         document.addEventListener('click', handleClickOutside);
@@ -72,9 +79,9 @@ function Header() {
     return (
         <header class="independent-header-container">
             <div class="independent-header-left-items">
-                {/* Tampilkan email user yang login di sini */}
-                {loggedInUserEmail() && (
-                    <span class="header-greeting">Halo, {loggedInUserEmail()}</span>
+
+                {loggedInUserName() && (
+                    <span class="header-greeting">Halo, {loggedInUserName()}</span>
                 )}
             </div>
             <div class="independent-header-middle-items">
