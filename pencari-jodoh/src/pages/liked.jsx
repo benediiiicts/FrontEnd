@@ -32,9 +32,9 @@
     const userPerPage = 4;
     
     //ini mengambil userId dari localStorage(untuk id liking_user)
-    const userId = localStorage.getItem('userId');
+    const userIdTest = localStorage.getItem('userId');
     //id buat melakukan testing
-    const userIdTest=8;
+    // const userIdTest=8;
     const nav = useNavigate();
 
     onMount(async () => {
