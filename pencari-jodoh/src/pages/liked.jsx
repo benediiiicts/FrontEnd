@@ -39,14 +39,14 @@
 
     onMount(async () => {
         try {
-                //melakukan fetch untuk mengambil data
+            //melakukan fetch untuk mengambil data
             const response = await fetch(`http://localhost:3001/user/getLikedUsers`, {
                 method: 'POST',
                 headers: {
                 'Content-Type': 'application/json',
                 },
                 //akan mengirimkan liking_user_id untuk nantinya digunakan di database
-                body: JSON.stringify({ liking_user_id: userIdTest }),
+                body: JSON.stringify({ liking_user_id: userId }),
             });
 
             const data = await response.json();
