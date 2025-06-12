@@ -32,6 +32,9 @@ function DashboardPage() {
     const [selectedKepribadian, setSelectedKepribadian] = createSignal('');
 
     const [showFilters, setShowFilters] = createSignal(false);
+    
+    const [cardIndex, setCardIndex] = createSignal(0);
+    const [action, setAction] = createSignal("");
 
     const calculateAge = (dobstring) => {
         const dob = new Date(dobstring);
@@ -136,8 +139,6 @@ function DashboardPage() {
         setAction("");
     });
 
-    const [cardIndex, setCardIndex] = createSignal(0);
-    const [action, setAction] = createSignal("");
 
     const nextCard = () => {
         if (cardIndex() < displayedUsers().length) {
@@ -168,7 +169,7 @@ function DashboardPage() {
     };
 
     const cardStyle = (index) => {
-        const list = displayedUsers(); // PERBAIKAN
+        const list = displayedUsers();
         if(index < cardIndex()) {
             return {
                 "z-index": list.length - index,
@@ -177,11 +178,18 @@ function DashboardPage() {
                 transition: 'transform 0.3s ease-in-out, opacity 0.3s ease-in-out',
             };
         }
+
+        // Jangan tampilkan kartu yang terlalu jauh di belakang tumpukan
+        if (index > cardIndex() + 2) {
+             return { display: 'none' };
+        }
+
         return {
             "z-index": list.length - index,
-            transform: `scale(${1 - (index - cardIndex()) * 0.05}) translateY(${(index - cardIndex()) * -10}px)`,
-            opacity: index === cardIndex() ? '1' : (index < cardIndex() + 3 ? '0.5' : '0'),
-            transition: 'transform 0.3s ease-in-out, opacity 0.3s ease-in-out',
+            transform: `translateX(-50%) scale(${1 - (index - cardIndex()) * 0.05}) translateY(${(index - cardIndex()) * -10}px)`,
+            left: '50%', // Pusatkan kartu secara horizontal
+            opacity: index === cardIndex() ? '1' : '0.5',
+            transition: 'transform 0.3s ease-in-out, opacity 0.1s ease-in-out',
         };
     };
 
