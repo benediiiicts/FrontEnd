@@ -49,7 +49,7 @@ const getAllUsers = async (req, res) => {
         const queryText = `
             SELECT 
                 u.user_id, u.nama, u.tanggal_lahir, u.profile_picture,
-                u.kota_id, u.kepribadian_id, u.agama_id, -- Kirim ID untuk filtering di client
+                u.kota_id, u.kepribadian_id, u.agama_id,
                 k.nama_kota,
                 p.jenis_kepribadian AS nama_personality,
                 a.nama_agama
@@ -57,9 +57,16 @@ const getAllUsers = async (req, res) => {
             LEFT JOIN kota k ON u.kota_id = k.kota_id
             LEFT JOIN kepribadian p ON u.kepribadian_id = p.kepribadian_id
             LEFT JOIN agama a ON u.agama_id = a.agama_id
-            WHERE u.user_id != $1 AND u.jenis_kelamin != $2
-            ORDER BY RANDOM() -- Acak daftar awal dari server
-        `;
+            WHERE u.user_id != $1 
+                AND u.jenis_kelamin != $2
+                AND u.user_id NOT IN (
+                    SELECT liked_user_id FROM liked_users WHERE liking_user_id = $1
+                )
+                AND u.user_id NOT IN (
+                    SELECT disliked_user_id FROM disliked_users WHERE disliking_user_id = $1
+                )
+            ORDER BY RANDOM()
+            `;
         
         const queryParams = [idUser, jenisKelamin];
         const result = await pool.query(queryText, queryParams);
@@ -81,11 +88,46 @@ const getAllUsers = async (req, res) => {
     }
 };
 
+// Fungsi untuk menyimpan data like ke table liked_users
+const likeUser = async (req, res) => {
+  const { liking_user_id, liked_user_id } = req.body;
+  try {
+    // INSERT data ke liked_users. Gunakan ON CONFLICT DO NOTHING agar tidak duplikat
+    await pool.query(
+      `INSERT INTO liked_users (liking_user_id, liked_user_id) VALUES ($1, $2)
+       ON CONFLICT DO NOTHING`,
+      [liking_user_id, liked_user_id]
+    );
+    res.status(200).json({ message: 'User liked successfully' });
+  } catch (error) {
+    console.error('Error liking user:', error);
+    res.status(500).json({ error: 'Gagal melakukan like' });
+  }
+};
+
+// Fungsi untuk menyimpan data dislike ke table disliked_users
+const dislikeUser = async (req, res) => {
+  const { disliking_user_id, disliked_user_id } = req.body;
+  try {
+    await pool.query(
+      `INSERT INTO disliked_users (disliking_user_id, disliked_user_id) VALUES ($1, $2)
+       ON CONFLICT DO NOTHING`,
+      [disliking_user_id, disliked_user_id]
+    );
+    res.status(200).json({ message: 'User disliked successfully' });
+  } catch (error) {
+    console.error('Error disliking user:', error);
+    res.status(500).json({ error: 'Gagal melakukan dislike' });
+  }
+};
+
 
 module.exports = {
     getAllKota,
     getAllHobi,
     getAllAgama,
     getAllKepribadian,
-    getAllUsers
+    getAllUsers,
+    likeUser,
+    dislikeUser
 };

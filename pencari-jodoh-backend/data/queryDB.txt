@@ -31,6 +31,13 @@ CREATE TABLE liked_users (
     PRIMARY KEY (liking_user_id, liked_user_id)
 );
 
+CREATE TABLE disliked_users (
+    disliking_user_id INTEGER REFERENCES users(user_id),
+    disliked_user_id INTEGER REFERENCES users(user_id),
+    disliked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (disliking_user_id, disliked_user_id)
+);
+
 CREATE TABLE kota (
     kota_id SERIAL PRIMARY KEY,
     nama_kota VARCHAR(255) UNIQUE NOT NULL
