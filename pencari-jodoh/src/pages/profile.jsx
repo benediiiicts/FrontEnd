@@ -330,7 +330,7 @@ function ProfilePage() {
                         profilePicture: profile.profile_picture || null,
                         bio: profile.bio || '',
                     });
-                    setDataBaru({ ...dataAwal(), profilePictureUrl: profile.profile_picture || '' });
+                    setDataBaru({ ...dataAwal, profilePictureUrl: profile.profile_picture || '' });
 
                 } else {
                     console.error('Gagal me-refresh data profil setelah update.');
