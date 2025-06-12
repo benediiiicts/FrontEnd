@@ -109,7 +109,7 @@ const updateUserProfile = async (req, res) => {
                 agama_id,
                 tinggi_badan,
                 pekerjaan,
-                hobiList, 
+                hobiList,
                 bio
             } = req.body;
 
@@ -118,7 +118,9 @@ const updateUserProfile = async (req, res) => {
             let paramIndex = 1;
 
             const addField = (field, value) => {
-                if (value !== undefined) {
+                if (typeof value === 'string' && value.trim() === '') {
+                    updateFields.push(`${field} = NULL`);
+                } else if (value !== undefined) {
                     updateFields.push(`${field} = $${paramIndex++}`);
                     updateValues.push(value);
                 }
@@ -126,18 +128,20 @@ const updateUserProfile = async (req, res) => {
 
             addField('nama', nama);
             addField('tanggal_lahir', tanggal_lahir);
-            addField('jenis_kelamin', jenis_kelamin);
-            addField('kepribadian_id', kepribadian_id ? parseInt(kepribadian_id, 10) : null);
-            addField('kota_id', kota_id ? parseInt(kota_id, 10) : null);
+            addField('jenis_kelamin', jenis_kelamin); 
+            addField('kepribadian_id', kepribadian_id === '' ? null : parseInt(kepribadian_id, 10));
+            addField('kota_id', kota_id === '' ? null : parseInt(kota_id, 10));
             addField('pendidikan_terakhir', pendidikan_terakhir);
-            addField('agama_id', agama_id ? parseInt(agama_id, 10) : null);
-            addField('tinggi_badan', tinggi_badan ? parseInt(tinggi_badan, 10) : null);
+            addField('agama_id', agama_id === '' ? null : parseInt(agama_id, 10));
+            addField('tinggi_badan', tinggi_badan === '' ? null : parseInt(tinggi_badan, 10));
             addField('pekerjaan', pekerjaan);
             addField('bio', bio);
 
             const profilePictureBuffer = req.file ? req.file.buffer : null;
             if (profilePictureBuffer) {
                 addField('profile_picture', profilePictureBuffer);
+            } else if (req.body.profilePicture === 'null' || req.body.profilePicture === '') {
+                updateFields.push('profile_picture = NULL');
             }
 
             if (updateFields.length === 0 && hobiList === undefined) {
@@ -163,9 +167,7 @@ const updateUserProfile = async (req, res) => {
                     } else if (Array.isArray(hobiList)) {
                         selectedHobiIds = hobiList;
                     }
-
                     selectedHobiIds = selectedHobiIds.map(id => parseInt(id, 10)).filter(id => !isNaN(id));
-
                 } catch (parseError) {
                     console.error('Error parsing hobi JSON (update):', parseError);
                     await client.query('ROLLBACK');

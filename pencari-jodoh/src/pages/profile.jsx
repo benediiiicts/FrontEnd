@@ -1,19 +1,19 @@
 import { createStore } from 'solid-js/store';
 import '../css/profile_page.css';
-import Header from './header'; // Pastikan path benar
+import Header from './header';
 import { useNavigate } from "@solidjs/router";
 import { createSignal, onMount } from 'solid-js';
 
 function ProfilePage() {
     const navigate = useNavigate();
     let fileInputRef;
-    
+
     const [isEditing, setIsEditing] = createSignal(false);
 
     const [daftarKota, setDaftarKota] = createSignal([]);
     const [daftarHobi, setDaftarHobi] = createSignal([]);
     const [daftarAgama, setDaftarAgama] = createSignal([]);
-    const [daftarSifatKepribadian, setDaftarSifatKepribadian] = createSignal();
+    const [daftarSifatKepribadian, setDaftarSifatKepribadian] = createSignal([]);
 
     const [dataAwal, setDataAwal] = createStore({
         nama: '',
@@ -50,161 +50,164 @@ function ProfilePage() {
         tinggiBadan: null,
         pekerjaan: '',
         profilePicture: null,
-        profilePictureUrl: '',
+        profilePictureUrl: '', 
         bio: '',
     });
 
     onMount(async () => {
-        
         const authToken = localStorage.getItem('authToken');
-        const userEmail = localStorage.getItem('userEmail');
         const userId = localStorage.getItem('userId');
 
-        if (!authToken || !userEmail || !userId) {
-            console.log('onMount: Tidak ada token, email, atau ID user. Mengarahkan ke halaman login.');
-            nav('/login', { replace: true });
+        if (!authToken || !userId) {
+            console.log('onMount: Tidak ada token atau ID user. Mengarahkan ke halaman login.');
+            navigate('/login', { replace: true });
             return;
         }
 
-        try{
-            const kotaResponse = await fetch('http://localhost:3001/data/kota');
-            if(kotaResponse.ok) {
-                const data = await kotaResponse.json();
-                const dataKota = data.kota;
-                setDaftarKota(dataKota);
-            }else {
-                console.error('gagal mengambil data kota saat onMount');
-            }
+        try {
+            const [kotaRes, hobiRes, agamaRes, kepribadianRes] = await Promise.all([
+                fetch('http://localhost:3001/data/kota'),
+                fetch('http://localhost:3001/data/hobi'),
+                fetch('http://localhost:3001/data/agama'),
+                fetch('http://localhost:3001/data/kepribadian')
+            ]);
 
-            const hobiResponse = await fetch('http://localhost:3001/data/hobi')
-            if(hobiResponse.ok) {
-                const data = await hobiResponse.json();
-                const dataHobi = data.hobi;
-                setDaftarHobi(dataHobi);
-            }else {
-                console.error('gagal mengambil data hobi saat onMount');
+            if (kotaRes.ok) {
+                const data = await kotaRes.json();
+                setDaftarKota(data.kota);
+            } else {
+                console.error('Gagal mengambil data kota saat onMount');
             }
-
-            const agamaResponse = await fetch('http://localhost:3001/data/agama')
-            if(agamaResponse.ok) {
-                const data = await agamaResponse.json();
-                const dataAgama = data.agama;
-                setDaftarAgama(dataAgama);
-            }else {
-                console.error('gagal mengambil data agama saat onMount');
+            if (hobiRes.ok) {
+                const data = await hobiRes.json();
+                setDaftarHobi(data.hobi);
+            } else {
+                console.error('Gagal mengambil data hobi saat onMount');
             }
-
-            const kepribadianResponse = await fetch('http://localhost:3001/data/kepribadian');
-            if(kepribadianResponse.ok) {
-                const data = await kepribadianResponse.json();
-                const dataKepribadian = data.kepribadian;
-                setDaftarSifatKepribadian(dataKepribadian);
-            }else {
-                console.error('gagal mengambil data kepribadian saat onMount');
+            if (agamaRes.ok) {
+                const data = await agamaRes.json();
+                setDaftarAgama(data.agama);
+            } else {
+                console.error('Gagal mengambil data agama saat onMount');
+            }
+            if (kepribadianRes.ok) {
+                const data = await kepribadianRes.json();
+                setDaftarSifatKepribadian(data.kepribadian);
+            } else {
+                console.error('Gagal mengambil data kepribadian saat onMount');
             }
 
             const userProfileResponse = await fetch('http://localhost:3001/user/profile', {
                 method: 'POST',
                 headers: {
-                        'Content-Type': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
                 },
                 body: JSON.stringify({
-                        idUser: userId,
+                    idUser: userId,
                 }),
             });
-            if(userProfileResponse.ok) {
+
+            if (userProfileResponse.ok) {
                 const data = await userProfileResponse.json();
                 const dataProfile = data.user;
-                
-                setDataAwal('nama', dataProfile.nama);
-                setDataAwal('tanggalLahir', dataProfile.tanggal_lahir);
-                setDataAwal('jenisKelamin', dataProfile.jenis_kelamin);
-                setDataAwal('idKota', dataProfile.kota_id);
-                setDataAwal('kota', dataProfile.nama_kota);
-                setDataAwal('idKepribadian', dataProfile.kepribadian_id);
-                setDataAwal('kepribadian', dataProfile.jenis_kepribadian);
-                setDataAwal('idAgama', dataProfile.agama_id);
-                setDataAwal('agama', dataProfile.nama_agama);
-                setDataAwal('idHobiList', dataProfile.idHobiList);
-                setDataAwal('hobiList', dataProfile.hobiList);
-                setDataAwal('pendidikanTerakhir', dataProfile.pendidikan_terakhir);
-                setDataAwal('tinggiBadan', dataProfile.tinggi_badan);
-                setDataAwal('pekerjaan', dataProfile.pekerjaan);
-                setDataAwal('profilePicture', dataProfile.profile_picture);
-                setDataAwal('bio', dataProfile.bio);
 
-                setDataBaru('nama', dataProfile.nama);
-                setDataBaru('tanggalLahir', dataProfile.tanggal_lahir);
-                setDataBaru('jenisKelamin', dataProfile.jenis_kelamin);
-                setDataBaru('idKota', dataProfile.kota_id);
-                setDataBaru('kota', dataProfile.nama_kota);
-                setDataBaru('idKepribadian', dataProfile.kepribadian_id);
-                setDataBaru('kepribadian', dataProfile.jenis_kepribadian);
-                setDataBaru('idAgama', dataProfile.agama_id);
-                setDataBaru('agama', dataProfile.nama_agama);
-                setDataBaru('idHobiList', dataProfile.idHobiList);
-                setDataBaru('hobiList', dataProfile.hobiList);
-                setDataBaru('pendidikanTerakhir', dataProfile.pendidikan_terakhir);
-                setDataBaru('tinggiBadan', dataProfile.tinggi_badan);
-                setDataBaru('pekerjaan', dataProfile.pekerjaan);
-                setDataBaru('profilePicture', dataProfile.profile_picture);
-                setDataBaru('bio', dataProfile.bio);
-            }else {
-                console.error('gagal mengambil data profile saat onMount');
+                const initialIdHobiList = dataProfile.idHobiList ? dataProfile.idHobiList.map(String) : [];
+                const initialHobiList = dataProfile.hobiList || [];
+
+                setDataAwal({
+                    nama: dataProfile.nama || '',
+                    tanggalLahir: dataProfile.tanggal_lahir || '',
+                    jenisKelamin: dataProfile.jenis_kelamin || '',
+                    idKota: dataProfile.kota_id || null,
+                    kota: dataProfile.nama_kota || '',
+                    idKepribadian: dataProfile.kepribadian_id || null,
+                    kepribadian: dataProfile.jenis_kepribadian || '',
+                    idAgama: dataProfile.agama_id || null,
+                    agama: dataProfile.nama_agama || '',
+                    idHobiList: initialIdHobiList,
+                    hobiList: initialHobiList,
+                    pendidikanTerakhir: dataProfile.pendidikan_terakhir || '',
+                    tinggiBadan: dataProfile.tinggi_badan || null,
+                    pekerjaan: dataProfile.pekerjaan || '',
+                    profilePicture: dataProfile.profile_picture || null,
+                    bio: dataProfile.bio || '',
+                });
+
+                setDataBaru({
+                    nama: dataProfile.nama || '',
+                    tanggalLahir: dataProfile.tanggal_lahir || '',
+                    jenisKelamin: dataProfile.jenis_kelamin || '',
+                    idKota: dataProfile.kota_id || null,
+                    kota: dataProfile.nama_kota || '',
+                    idKepribadian: dataProfile.kepribadian_id || null,
+                    kepribadian: dataProfile.jenis_kepribadian || '',
+                    idAgama: dataProfile.agama_id || null,
+                    agama: dataProfile.nama_agama || '',
+                    idHobiList: initialIdHobiList,
+                    hobiList: initialHobiList,
+                    pendidikanTerakhir: dataProfile.pendidikan_terakhir || '',
+                    tinggiBadan: dataProfile.tinggi_badan || null,
+                    pekerjaan: dataProfile.pekerjaan || '',
+                    profilePicture: dataProfile.profile_picture || null,
+                    profilePictureUrl: dataProfile.profile_picture || '',
+                    bio: dataProfile.bio || '',
+                });
+            } else {
+                console.error('Gagal mengambil data profile saat onMount');
+                const errorData = await userProfileResponse.json();
+                console.error('Error detail:', errorData);
             }
 
-        }catch (error) {
-            console.error('onMount: Error saat fetch data:', err);
-        }   
+        } catch (error) {
+            console.error('onMount: Error saat fetch data:', error);
+        }
     });
 
     const formatDate = (dateString) => {
-        if (!dateString) return ''; 
-        
+        if (!dateString) return '';
         const date = new Date(dateString);
-        
         if (isNaN(date.getTime())) {
             console.warn(`Invalid date string: ${dateString}`);
             return '';
         }
-
         const year = date.getFullYear();
         const month = (date.getMonth() + 1).toString().padStart(2, '0');
         const day = date.getDate().toString().padStart(2, '0');
-
         return `${year}-${month}-${day}`;
     };
 
     const handleInputChange = (event) => {
-        const {name, value} = event.currentTarget;
-        switch(name) {
+        const { name, value, selectedOptions } = event.currentTarget;
+        let idFromOption = null;
+        if (selectedOptions && selectedOptions.length > 0) {
+            idFromOption = selectedOptions[0].id;
+        }
+
+        switch (name) {
             case 'nama': setDataBaru('nama', value); break;
             case 'tanggalLahir': setDataBaru('tanggalLahir', value); break;
             case 'jenisKelamin': setDataBaru('jenisKelamin', value); break;
             case 'kota':
-                const idKota = event.currentTarget.id;
-                setDataBaru('idKota', idKota);
+                setDataBaru('idKota', idFromOption ? parseInt(idFromOption, 10) : null);
                 setDataBaru('kota', value);
                 break;
             case 'kepribadian':
-                const idKepribadian = event.currentTarget.id;
-                setDataBaru('idKepribadian', idKepribadian);
+                setDataBaru('idKepribadian', idFromOption ? parseInt(idFromOption, 10) : null);
                 setDataBaru('kepribadian', value);
                 break;
             case 'agama':
-                const idAgama = event.currentTarget.id;
-                setDataBaru('idAgama', idAgama);
+                setDataBaru('idAgama', idFromOption ? parseInt(idFromOption, 10) : null);
                 setDataBaru('agama', value);
                 break;
             case 'pendidikan': setDataBaru('pendidikanTerakhir', value); break;
-            case 'tinggiBadan': setDataBaru('tinggiBadan', parseInt(value)); break;
+            case 'tinggiBadan': setDataBaru('tinggiBadan', parseInt(value, 10) || null); break;
             case 'pekerjaan': setDataBaru('pekerjaan', value); break;
             case 'bio': setDataBaru('bio', value); break;
         }
     };
 
     const handleHobiCheckboxChange = (hobiId, isChecked, hobiName) => {
-        // Pastikan hobiId adalah string untuk konsistensi jika Anda menyimpannya sebagai string
         const id = String(hobiId);
 
         setDataBaru(prev => {
@@ -215,7 +218,6 @@ function ProfilePage() {
             let newHobiList;
 
             if (isChecked) {
-                // Tambahkan ID hobi jika belum ada
                 if (!currentIdHobiList.includes(id)) {
                     newIdHobiList = [...currentIdHobiList, id];
                     newHobiList = [...currentHobiList, hobiName];
@@ -224,7 +226,6 @@ function ProfilePage() {
                     newHobiList = currentHobiList;
                 }
             } else {
-                // Hapus ID hobi jika ada
                 newIdHobiList = currentIdHobiList.filter(item => item !== id);
                 newHobiList = currentHobiList.filter(name => name !== hobiName);
             }
@@ -232,15 +233,20 @@ function ProfilePage() {
             return {
                 ...prev,
                 idHobiList: newIdHobiList,
-                hobiList: newHobiList, // Penting: update juga hobiList jika Anda menggunakannya untuk tampilan
+                hobiList: newHobiList,
             };
         });
     };
 
     const handleFileChange = (event) => {
         const file = event.currentTarget.files[0];
-        setDataBaru('profilePicture', file);
-        setDataBaru('profilePictureUrl', URL.createObjectURL(file));
+        if (file) {
+            setDataBaru('profilePicture', file);
+            setDataBaru('profilePictureUrl', URL.createObjectURL(file));
+        } else {
+            setDataBaru('profilePicture', dataAwal.profilePicture);
+            setDataBaru('profilePictureUrl', dataAwal.profilePicture);
+        }
     };
 
     const handleProfilePictureUploadClick = () => {
@@ -248,23 +254,7 @@ function ProfilePage() {
     };
 
     const resetDataBaru = () => {
-        setDataBaru('nama', dataAwal.nama);
-        setDataBaru('tanggalLahir', dataAwal.tanggalLahir);
-        setDataBaru('jenisKelamin', dataAwal.jenisKelamin);
-        setDataBaru('idKota', dataAwal.idKota);
-        setDataBaru('kota', dataAwal.kota);
-        setDataBaru('idKepribadian', dataAwal.idKepribadian);
-        setDataBaru('kepribadian', dataAwal.kepribadian);
-        setDataBaru('idAgama', dataAwal.idAgama);
-        setDataBaru('agama', dataAwal.agama);
-        setDataBaru('idHobiList', dataAwal.idHobiList);
-        setDataBaru('hobiList', dataAwal.hobiList);
-        setDataBaru('pendidikanTerakhir', dataAwal.pendidikanTerakhir);
-        setDataBaru('tinggiBadan', dataAwal.tinggiBadan);
-        setDataBaru('pekerjaan', dataAwal.pekerjaan);
-        setDataBaru('profilePicture', dataAwal.profilePicture);
-        setDataBaru('profilePictureUrl', '');
-        setDataBaru('bio', dataAwal.bio);
+        setDataBaru({ ...dataAwal, profilePictureUrl: dataAwal.profilePicture || '' });
     };
 
     const handleCancelEdit = () => {
@@ -272,10 +262,12 @@ function ProfilePage() {
         setIsEditing(false);
     };
 
-    const handleSaveBtn = async() => {
-        setDataAwal({ ...dataBaru });
+    const handleSaveBtn = async () => {
+        const userId = localStorage.getItem('userId');
+        const authToken = localStorage.getItem('authToken');
 
         const formData = new FormData();
+
         formData.append('nama', dataAwal.nama);
         formData.append('tanggal_lahir', dataAwal.tanggalLahir);
         formData.append('jenis_kelamin', dataAwal.jenisKelamin);
@@ -453,6 +445,7 @@ function ProfilePage() {
                         )}
                         <button class="action-button" onClick={() => setIsEditing(true)} disabled={isEditing()}>Edit Profile</button>
                         <button class="action-button" onClick={handleSaveBtn} disabled={!isEditing()}>Save Profile</button>
+
                     </div>
                 </div>
             </div>
