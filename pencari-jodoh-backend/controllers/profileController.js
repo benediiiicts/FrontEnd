@@ -3,9 +3,9 @@ const multer = require('multer');
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
-
+    //untuk id user ditambahin juga untuk req params
 const getUserProfile = async (req, res) => {
-    const { idUser } = req.body;
+    const idUser = req.params.idUser || req.body.idUser;
     try {
         const query = `
             WITH UserHobbies AS (

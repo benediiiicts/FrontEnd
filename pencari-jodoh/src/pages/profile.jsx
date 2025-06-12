@@ -289,174 +289,174 @@ function ProfilePage() {
         formData.append('profile_picture', dataBaru.profilePicture);
         formData.append('tinggi_badan', dataAwal.tinggiBadan);
 
-        const userProfileUpdateResponse = await fetch(`http://localhost:3001/user/updateProfile/${localStorage.getItem('userId')}`, {
-                method: 'PUT',
-                body: formData,
-        });
+            const userProfileUpdateResponse = await fetch(`http://localhost:3001/user/updateProfile/${localStorage.getItem('userId')}`, {
+                    method: 'PUT',
+                    body: formData,
+            });
 
-        const data = await userProfileUpdateResponse.json();
-        if(userProfileUpdateResponse.ok) {
-            console.log('Profil berhasil diupdate!');
-        }else {
-            console.error(`error: ${data.error}`);
-        }
+            const data = await userProfileUpdateResponse.json();
+            if(userProfileUpdateResponse.ok) {
+                console.log('Profil berhasil diupdate!');
+            }else {
+                console.error(`error: ${data.error}`);
+            }
 
 
-        setIsEditing(false);
-    };
+            setIsEditing(false);
+        };
 
-    return (
-        <div class="profile-page-container">
-            <Header />
-            <div class="profile-card">
-                <div class="profile-main-content">
-                    <div class="profile-avatar-section">
-                        <div class="profile-avatar-placeholder">
-                            {dataBaru.profilePictureUrl ? (
-                                <img src={dataBaru.profilePictureUrl} alt="Profile" class="profile-avatar-img"/>
-                            ) : (
-                                <img src={dataAwal.profilePicture} alt="Profile" class="profile-avatar-img"/>
+        return (
+            <div class="profile-page-container">
+                <Header />
+                <div class="profile-card">
+                    <div class="profile-main-content">
+                        <div class="profile-avatar-section">
+                            <div class="profile-avatar-placeholder">
+                                {dataBaru.profilePictureUrl ? (
+                                    <img src={dataBaru.profilePictureUrl} alt="Profile" class="profile-avatar-img"/>
+                                ) : (
+                                    <img src={dataAwal.profilePicture} alt="Profile" class="profile-avatar-img"/>
+                                )}
+                            </div>
+                            {isEditing() && (
+                                <>
+                                    <input
+                                        type="file"
+                                        accept="image/png, image/jpeg"
+                                        style={{ display: 'none' }}
+                                        ref={fileInputRef}
+                                        onChange={handleFileChange}
+                                    />
+                                    <button type="button" onClick={handleProfilePictureUploadClick} class="upload-photo-button">
+                                        Ganti Foto
+                                    </button>
+                                </>
                             )}
                         </div>
+
+                        <div class="profile-details-grid">
+                            <div class="detail-item">
+                                <label htmlFor="nama">Nama</label>
+                                <input name="nama" type="text" class="input-field" value={dataAwal.nama} onInput={handleInputChange} disabled={!isEditing()}/>
+                            </div>
+
+                            <div class="detail-item">
+                                <label htmlFor="tanggal-lahir">Tanggal Lahir</label>
+                                <input name="tanggalLahir" type="date" class="input-field" value={formatDate(dataAwal.tanggalLahir)} onInput={handleInputChange} disabled={!isEditing()}/>
+                            </div>
+
+                            <div class="detail-item">
+                                <label htmlFor="jenis-kelamin">Jenis Kelamin</label>
+                                {isEditing() ? (
+                                    <select name="jenisKelamin" class="input-field" value={dataAwal.jenisKelamin} onChange={handleInputChange}>
+                                        <option value="">-- Pilih --</option>
+                                        <option value="Pria">Pria</option>
+                                        <option value="Wanita">Wanita</option>
+                                    </select>
+                                ) : (
+                                    <input name="jenisKelamin" type="text" class="input-field" value={dataAwal.jenisKelamin} disabled/>
+                                )}
+                            </div>
+
+                            <div class="detail-item">
+                                <label htmlFor="sifat-kepribadian">Sifat Kepribadian</label>
+                                {isEditing() ? (
+                                    <select name='kepribadian' class="input-field" value={dataAwal.kepribadian} onChange={handleInputChange}>
+                                        <option value="">-- Pilih Sifat --</option>
+                                        {daftarSifatKepribadian().map(sifat => (
+                                            <option id={sifat.kepribadian_id} value={sifat.jenis_kepribadian}>{sifat.jenis_kepribadian}</option>
+                                        ))}
+                                    </select>
+                                ) : (
+                                    <input id={dataAwal.idKepribadian} name='kepribadian' type="text" class="input-field" value={dataAwal.kepribadian} disabled/>
+                                )}
+                            </div>
+
+                            <div class="detail-item">
+                                <label htmlFor="lokasi">Lokasi</label>
+                                {isEditing() ? (
+                                    <select name="kota" class="input-field" value={dataAwal.kota} onChange={handleInputChange}>
+                                        <option value="">-- Pilih Kota --</option>
+                                        {daftarKota().map(kota => (
+                                            <option id={kota.kota_id} value={kota.nama_kota}>{kota.nama_kota}</option>
+                                        ))}
+                                    </select>
+                                ) : (
+                                    <input id="lokasi" type="text" class="input-field" value={dataAwal.kota} disabled/>
+                                )}
+                            </div>
+
+                            <div class="detail-item">
+                                <label htmlFor="pendidikan-terakhir">Pendidikan Terakhir</label>
+                                <input name="pendidikan" type="text" class="input-field" value={dataAwal.pendidikanTerakhir} onInput={handleInputChange} disabled={!isEditing()}/>
+                            </div>
+
+                            <div class="detail-item">
+                                <label htmlFor="agama">Agama</label>
+                                {isEditing() ? (
+                                    <select name="agama" class="input-field" value={dataAwal.agama} onChange={handleInputChange}>
+                                        <option value="">-- Pilih Agama --</option>
+                                        {daftarAgama().map(agamaItem => (
+                                            <option id={agamaItem.agama_id} value={agamaItem.nama_agama}>{agamaItem.nama_agama}</option>
+                                        ))}
+                                    </select>
+                                ) : (
+                                    <input id="agama" type="text" class="input-field" value={dataAwal.agama} disabled/>
+                                )}
+                            </div>
+
+                            <div class="detail-item">
+                                <label htmlFor="tinggi-badan">Tinggi Badan</label>
+                                <input nama="tinggiBadan" type="number" class="input-field" value={dataAwal.tinggiBadan} onInput={handleInputChange} disabled={!isEditing()}/>
+                            </div>
+
+                            <div class="detail-item">
+                                <label htmlFor="pekerjaan">Pekerjaan</label>
+                                <input name="pekerjaan" type="text" class="input-field" value={dataAwal.pekerjaan} onInput={handleInputChange} disabled={!isEditing()}/>
+                            </div>
+
+                            <div class="detail-item">
+                                <label htmlFor="hobi">Hobi</label>
+                                {isEditing() ? (
+                                    <div class="hobi-checkbox-scroll-box input-field">
+                                        {daftarHobi().map(hobi => (
+                                            <label key={hobi.hobi_id} class="hobi-option-item">
+                                                <input
+                                                    type="checkbox"
+                                                    value={hobi.hobi_id}
+                                                    // Cek apakah ID hobi ada di dataBaru.idHobiList
+                                                    checked={dataBaru.idHobiList.includes(String(hobi.hobi_id))}
+                                                    onChange={(e) => handleHobiCheckboxChange(hobi.hobi_id, e.currentTarget.checked, hobi.nama_hobi)}
+                                                />
+                                                {hobi.nama_hobi}
+                                            </label>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <input name="hobi" type="text" class="input-field" value={dataAwal.hobiList.join(', ')} disabled/>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Bagian Bio */}
+                        <div class="bio-section">
+                            <label htmlFor="bio">Bio</label>
+                            <textarea name="bio" class="textarea-field" rows="5" value={dataAwal.bio} onInput={handleInputChange} disabled={!isEditing()}></textarea>
+                        </div>
+                    </div>
+
+                    <div class="button-container">
                         {isEditing() && (
-                            <>
-                                <input
-                                    type="file"
-                                    accept="image/png, image/jpeg"
-                                    style={{ display: 'none' }}
-                                    ref={fileInputRef}
-                                    onChange={handleFileChange}
-                                />
-                                <button type="button" onClick={handleProfilePictureUploadClick} class="upload-photo-button">
-                                    Ganti Foto
-                                </button>
-                            </>
+                            <button class="action-button cancel-button" onClick={handleCancelEdit}>
+                                Cancel
+                            </button>
                         )}
+                        <button class="action-button" onClick={() => setIsEditing(true)} disabled={isEditing()}>Edit Profile</button>
+                        <button class="action-button" onClick={handleSaveBtn} disabled={!isEditing()}>Save Profile</button>
                     </div>
-
-                    <div class="profile-details-grid">
-                        <div class="detail-item">
-                            <label htmlFor="nama">Nama</label>
-                            <input name="nama" type="text" class="input-field" value={dataAwal.nama} onInput={handleInputChange} disabled={!isEditing()}/>
-                        </div>
-
-                        <div class="detail-item">
-                            <label htmlFor="tanggal-lahir">Tanggal Lahir</label>
-                            <input name="tanggalLahir" type="date" class="input-field" value={formatDate(dataAwal.tanggalLahir)} onInput={handleInputChange} disabled={!isEditing()}/>
-                        </div>
-
-                        <div class="detail-item">
-                            <label htmlFor="jenis-kelamin">Jenis Kelamin</label>
-                            {isEditing() ? (
-                                <select name="jenisKelamin" class="input-field" value={dataAwal.jenisKelamin} onChange={handleInputChange}>
-                                    <option value="">-- Pilih --</option>
-                                    <option value="Pria">Pria</option>
-                                    <option value="Wanita">Wanita</option>
-                                </select>
-                            ) : (
-                                <input name="jenisKelamin" type="text" class="input-field" value={dataAwal.jenisKelamin} disabled/>
-                            )}
-                        </div>
-
-                        <div class="detail-item">
-                            <label htmlFor="sifat-kepribadian">Sifat Kepribadian</label>
-                            {isEditing() ? (
-                                <select name='kepribadian' class="input-field" value={dataAwal.kepribadian} onChange={handleInputChange}>
-                                    <option value="">-- Pilih Sifat --</option>
-                                    {daftarSifatKepribadian().map(sifat => (
-                                        <option id={sifat.kepribadian_id} value={sifat.jenis_kepribadian}>{sifat.jenis_kepribadian}</option>
-                                    ))}
-                                </select>
-                            ) : (
-                                <input id={dataAwal.idKepribadian} name='kepribadian' type="text" class="input-field" value={dataAwal.kepribadian} disabled/>
-                            )}
-                        </div>
-
-                        <div class="detail-item">
-                            <label htmlFor="lokasi">Lokasi</label>
-                            {isEditing() ? (
-                                <select name="kota" class="input-field" value={dataAwal.kota} onChange={handleInputChange}>
-                                    <option value="">-- Pilih Kota --</option>
-                                    {daftarKota().map(kota => (
-                                        <option id={kota.kota_id} value={kota.nama_kota}>{kota.nama_kota}</option>
-                                    ))}
-                                </select>
-                            ) : (
-                                <input id="lokasi" type="text" class="input-field" value={dataAwal.kota} disabled/>
-                            )}
-                        </div>
-
-                        <div class="detail-item">
-                            <label htmlFor="pendidikan-terakhir">Pendidikan Terakhir</label>
-                            <input name="pendidikan" type="text" class="input-field" value={dataAwal.pendidikanTerakhir} onInput={handleInputChange} disabled={!isEditing()}/>
-                        </div>
-
-                        <div class="detail-item">
-                            <label htmlFor="agama">Agama</label>
-                            {isEditing() ? (
-                                <select name="agama" class="input-field" value={dataAwal.agama} onChange={handleInputChange}>
-                                    <option value="">-- Pilih Agama --</option>
-                                    {daftarAgama().map(agamaItem => (
-                                        <option id={agamaItem.agama_id} value={agamaItem.nama_agama}>{agamaItem.nama_agama}</option>
-                                    ))}
-                                </select>
-                            ) : (
-                                <input id="agama" type="text" class="input-field" value={dataAwal.agama} disabled/>
-                            )}
-                        </div>
-
-                        <div class="detail-item">
-                            <label htmlFor="tinggi-badan">Tinggi Badan</label>
-                            <input nama="tinggiBadan" type="number" class="input-field" value={dataAwal.tinggiBadan} onInput={handleInputChange} disabled={!isEditing()}/>
-                        </div>
-
-                        <div class="detail-item">
-                            <label htmlFor="pekerjaan">Pekerjaan</label>
-                            <input name="pekerjaan" type="text" class="input-field" value={dataAwal.pekerjaan} onInput={handleInputChange} disabled={!isEditing()}/>
-                        </div>
-
-                        <div class="detail-item">
-                            <label htmlFor="hobi">Hobi</label>
-                            {isEditing() ? (
-                                <div class="hobi-checkbox-scroll-box input-field">
-                                    {daftarHobi().map(hobi => (
-                                        <label key={hobi.hobi_id} class="hobi-option-item">
-                                            <input
-                                                type="checkbox"
-                                                value={hobi.hobi_id}
-                                                // Cek apakah ID hobi ada di dataBaru.idHobiList
-                                                checked={dataBaru.idHobiList.includes(String(hobi.hobi_id))}
-                                                onChange={(e) => handleHobiCheckboxChange(hobi.hobi_id, e.currentTarget.checked, hobi.nama_hobi)}
-                                            />
-                                            {hobi.nama_hobi}
-                                        </label>
-                                    ))}
-                                </div>
-                            ) : (
-                                <input name="hobi" type="text" class="input-field" value={dataAwal.hobiList.join(', ')} disabled/>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Bagian Bio */}
-                    <div class="bio-section">
-                        <label htmlFor="bio">Bio</label>
-                        <textarea name="bio" class="textarea-field" rows="5" value={dataAwal.bio} onInput={handleInputChange} disabled={!isEditing()}></textarea>
-                    </div>
-                </div>
-
-                <div class="button-container">
-                    {isEditing() && (
-                        <button class="action-button cancel-button" onClick={handleCancelEdit}>
-                            Cancel
-                        </button>
-                    )}
-                    <button class="action-button" onClick={() => setIsEditing(true)} disabled={isEditing()}>Edit Profile</button>
-                    <button class="action-button" onClick={handleSaveBtn} disabled={!isEditing()}>Save Profile</button>
                 </div>
             </div>
-        </div>
-    );
-}
+        );
+    }
 
 export default ProfilePage;
