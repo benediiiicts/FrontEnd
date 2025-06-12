@@ -263,39 +263,50 @@ function ProfilePage() {
     };
 
     const handleSaveBtn = async () => {
-        const userId = localStorage.getItem('userId');
-        const authToken = localStorage.getItem('authToken');
+                const userId = localStorage.getItem('userId');
+                const authToken = localStorage.getItem('authToken');
 
-        const formData = new FormData();
+                const formData = new FormData();
 
-        formData.append('nama', dataAwal.nama);
-        formData.append('tanggal_lahir', dataAwal.tanggalLahir);
-        formData.append('jenis_kelamin', dataAwal.jenisKelamin);
-        formData.append('kepribadian_id', dataAwal.idKepribadian);
-        formData.append('kota_id', dataAwal.idKota);
-        formData.append('pendidikan_terakhir', dataAwal.pendidikanTerakhir);
-        formData.append('agama_id', dataAwal.idAgama);
-        formData.append('pekerjaan', dataAwal.pekerjaan);
-        formData.append('hobiList', JSON.stringify(dataAwal.idHobiList));
-        formData.append('bio', dataAwal.bio);
-        formData.append('profile_picture', dataBaru.profilePicture);
-        formData.append('tinggi_badan', dataAwal.tinggiBadan);
+                formData.append('nama', dataBaru.nama);
+                formData.append('tanggal_lahir', dataBaru.tanggalLahir);
+                formData.append('jenis_kelamin', dataBaru.jenisKelamin);
+                formData.append('kepribadian_id', dataBaru.idKepribadian);
+                formData.append('kota_id', dataBaru.idKota);
+                formData.append('pendidikan_terakhir', dataBaru.pendidikanTerakhir);
+                formData.append('agama_id', dataBaru.idAgama);
+                formData.append('pekerjaan', dataBaru.pekerjaan);
+                formData.append('hobiList', JSON.stringify(dataBaru.idHobiList));
+                formData.append('bio', dataBaru.bio);
+                formData.append('tinggi_badan', dataBaru.tinggiBadan);
 
-            const userProfileUpdateResponse = await fetch(`http://localhost:3001/user/updateProfile/${localStorage.getItem('userId')}`, {
-                    method: 'PUT',
-                    body: formData,
-            });
+                if (dataBaru.profilePicture instanceof File) {
+                    formData.append('profile_picture', dataBaru.profilePicture);
+                }
 
-            const data = await userProfileUpdateResponse.json();
-            if(userProfileUpdateResponse.ok) {
-                console.log('Profil berhasil diupdate!');
-            }else {
-                console.error(`error: ${data.error}`);
-            }
+                try {
+                    const userProfileUpdateResponse = await fetch(`http://localhost:3001/user/updateProfile/${userId}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Authorization': `Bearer ${authToken}`
+                            },
+                            body: formData,
+                    });
 
+                    const data = await userProfileUpdateResponse.json();
 
-            setIsEditing(false);
-        };
+                    if (userProfileUpdateResponse.ok) {
+                        console.log('Profil berhasil diupdate!');
+                        // IMPORTANT: Update dataAwal with the new data after a successful save
+                        setDataAwal({...dataBaru, profilePicture: dataBaru.profilePictureUrl});
+                        setIsEditing(false);
+                    } else {
+                        console.error(`Error: ${data.error}`);
+                    }
+                } catch (error) {
+                    console.error('Failed to send update request:', error);
+                }
+            };
 
         return (
             <div class="profile-page-container">
