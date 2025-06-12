@@ -175,10 +175,6 @@ function ProfilePage() {
         return `${year}-${month}-${day}`;
     };
 
-    const handleBackClick = () => {
-        navigate('/dashboard');
-    };
-
     const handleInputChange = (event) => {
         const {name, value} = event.currentTarget;
         switch(name) {
