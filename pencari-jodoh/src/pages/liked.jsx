@@ -65,8 +65,13 @@
             nav('/dashboard');
         };
         //untuk pindah ke halaman profile
-        const handleProfileClick = () => {
-            nav('/profile');
+        const handleProfileClick = (likedUser) => {
+            //mengisi parameter id dengan user_id yang di klik,ini didapat dari si item LikedUser
+        if (likedUser && likedUser.user_id) {
+            nav(`/profile/${likedUser.user_id}`);
+        } else {
+            console.log("User ID tidak ditemukan untuk navigasi");
+        }
         };
         //untuk mengubah halaman paginasi
         const handlePageChange = (pageNumber) => {
@@ -91,7 +96,7 @@
                             {/* iterasi data berdasarkan paginatedUsers */}
                             <For each={paginatedUsers()} fallback={<div>No liked yet.</div>}>
                                 {/* untuk setiap item maka akan di card(dijadikan 1 frame) */}
-                                {(item) => <LikedItemCard item={item} onClick={handleProfileClick}/>}
+                                {(item) => <LikedItemCard item={item}  onClick={() => handleProfileClick(item)}/>}
                             </For>
                         </div>
                         <nav class="pagination" aria-label="Page navigation">

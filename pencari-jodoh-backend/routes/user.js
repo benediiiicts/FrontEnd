@@ -14,6 +14,8 @@ router.post('/register', registerController);
 router.post('/profile', profileController.getUserProfile);
 router.put('/updateProfile/:userId', profileController.updateUserProfile);
 router.post('/chat', chatController.getMatchedUsers);
+router.post('/likeduser/profile', profileController.getUserProfile);
+
 
 // router.get('/getUsers', userController.authenticateToken, userController.getAllUsers);
 // router.get('/kota', userController.getAllKota);
