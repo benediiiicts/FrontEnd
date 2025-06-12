@@ -159,7 +159,6 @@ function RegisterPage() {
         formData.append('pendidikan_terakhir', userDetails.pendidikanTerakhir);
         formData.append('agama_id', userDetails.agama_id);
         formData.append('pekerjaan', userDetails.pekerjaan);
-        formData.append('pendidikanTerakhir', userDetails.pendidikanTerakhir);
         formData.append('hobiList', JSON.stringify(userDetails.hobiList));
         formData.append('bio', userDetails.bio);
         formData.append('profile_picture', userDetails.profilePicture);

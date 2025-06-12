@@ -45,12 +45,11 @@ function DashboardPage() {
         const authToken = localStorage.getItem('authToken');
         const userEmail = localStorage.getItem('userEmail');
         const userId = localStorage.getItem('userId');
-        const namaUser = localStorage.getItem('nama');
         const jenisKelaminUser = localStorage.getItem('jenisKelamin');
 
         if (!authToken || !userEmail || !userId) {
             console.log('onMount: Tidak ada token, email, atau ID user. Mengarahkan ke halaman login.');
-            nav('/login', { replace: true }); // Arahkan ke login jika tidak ada token
+            nav('/login', { replace: true });
             return;
         }
 
@@ -79,7 +78,7 @@ function DashboardPage() {
 
             const data = await response.json();
             console.log('onMount: Data received from API:', data);
-            console.log('onMount: Data[0]:', data[0]); // Log data pertama setelah fetch
+            console.log('onMount: Data[0]:', data[0]); 
 
             const usersData = data.users;
 

@@ -30,6 +30,8 @@ function Header() {
         localStorage.removeItem('authToken');
         localStorage.removeItem('userEmail');
         localStorage.removeItem('userId');
+        localStorage.removeItem('nama');
+        localStorage.removeItem('jenisKelamin');
 
         setLoggedInUserEmail('');
         setLoggedInUserId(null);

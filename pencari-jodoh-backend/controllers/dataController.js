@@ -46,7 +46,7 @@ const getAllUsers = async (req, res) => {
         const query = 'SELECT user_id, nama, tanggal_lahir, profile_picture FROM users WHERE user_id != $1 AND jenis_kelamin != $2';
         const result = await pool.query(query, [idUser, jenisKelamin]);
         const users = result.rows.map(user => {
-            const imgType = 'image/jpeg/png';
+            const imgType = 'image/jpeg';
             const base64Img = user.profile_picture.toString('base64');
             user.profile_picture = `data:${imgType};base64,${base64Img}`;
             return user;
