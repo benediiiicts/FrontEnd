@@ -41,34 +41,15 @@ const getAllKepribadian = async (req, res) => {
 };
 
 const getAllUsers = async (req, res) => {
-    const { idUser, jenisKelamin, kota_id, kepribadian_id, agama_id } = req.body;
+    // Hanya butuh idUser dan jenisKelamin untuk mendapatkan daftar dasar
+    const { idUser, jenisKelamin } = req.body;
 
     try {
-        let queryParams = [idUser, jenisKelamin];
-        let paramIndex = 3;
-        
-        let orderByClauses = [];
-        
-        // Membangun klausa ORDER BY untuk prioritas
-        if (kepribadian_id) {
-            orderByClauses.push(`CASE WHEN u.kepribadian_id = $${paramIndex} THEN 0 ELSE 1 END`);
-            queryParams.push(kepribadian_id);
-            paramIndex++;
-        }
-        if (kota_id) {
-            orderByClauses.push(`CASE WHEN u.kota_id = $${paramIndex} THEN 0 ELSE 1 END`);
-            queryParams.push(kota_id);
-            paramIndex++;
-        }
-        if (agama_id) {
-            orderByClauses.push(`CASE WHEN u.agama_id = $${paramIndex} THEN 0 ELSE 1 END`);
-            queryParams.push(agama_id);
-            paramIndex++;
-        }
-        
-        let queryText = `
+        // Query sederhana untuk mengambil semua data yang dibutuhkan oleh frontend untuk filter
+        const queryText = `
             SELECT 
                 u.user_id, u.nama, u.tanggal_lahir, u.profile_picture,
+                u.kota_id, u.kepribadian_id, u.agama_id, -- Kirim ID untuk filtering di client
                 k.nama_kota,
                 p.jenis_kepribadian AS nama_personality,
                 a.nama_agama
@@ -77,22 +58,16 @@ const getAllUsers = async (req, res) => {
             LEFT JOIN kepribadian p ON u.kepribadian_id = p.kepribadian_id
             LEFT JOIN agama a ON u.agama_id = a.agama_id
             WHERE u.user_id != $1 AND u.jenis_kelamin != $2
+            ORDER BY RANDOM() -- Acak daftar awal dari server
         `;
         
-        if (orderByClauses.length > 0) {
-            // Urutkan berdasarkan prioritas, lalu acak sisanya
-            queryText += ` ORDER BY ${orderByClauses.join(', ')}, RANDOM()`;
-        } else {
-            // Jika tidak ada filter, cukup acak saja
-            queryText += ` ORDER BY RANDOM()`;
-        }
-        
+        const queryParams = [idUser, jenisKelamin];
         const result = await pool.query(queryText, queryParams);
 
+        // Ubah format gambar ke base64 sebelum dikirim
         const users = result.rows.map(user => {
             if (user.profile_picture) {
                 const imgType = 'image/jpeg';
-                // Pastikan menggunakan Buffer.from() jika data dari DB bukan buffer
                 const base64Img = Buffer.from(user.profile_picture).toString('base64');
                 user.profile_picture = `data:${imgType};base64,${base64Img}`;
             }
@@ -101,7 +76,7 @@ const getAllUsers = async (req, res) => {
 
         res.status(200).json({ users: users });
     } catch (error) {
-        console.error('Error fetching users with filter:', error);
+        console.error('Error fetching all users for CSR:', error);
         res.status(500).json({ error: 'Gagal mengambil daftar users' });
     }
 };

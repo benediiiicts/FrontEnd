@@ -1,7 +1,7 @@
 import '../css/dashboard_page.css'; 
 import Header from './header';
 import { useNavigate } from '@solidjs/router';
-import { createSignal, onMount, createEffect, Show } from 'solid-js';
+import { createSignal, onMount, createEffect, createMemo, Show } from 'solid-js';
 import { AiFillHeart } from 'solid-icons/ai'
 import { ImCross } from 'solid-icons/im'
 
@@ -54,11 +54,32 @@ function DashboardPage() {
         const authToken = localStorage.getItem('authToken');
         const userEmail = localStorage.getItem('userEmail');
         const userId = localStorage.getItem('userId');
+        const jenisKelaminUser = localStorage.getItem('jenisKelamin');
 
         if (!authToken || !userEmail || !userId) {
             console.log('onMount: Tidak ada token, email, atau ID user. Mengarahkan ke halaman login.');
             nav('/login', { replace: true });
             return;
+        }
+
+        // Ambil SEMUA pengguna, tanpa filter, SATU KALI SAJA.
+        try {
+            const response = await fetch('http://localhost:3001/data/users', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ idUser: userId, jenisKelamin: jenisKelaminUser }),
+            });
+            const data = await response.json();
+            if (Array.isArray(data.users)) {
+                const usersUmur = data.users.map(user => ({
+                    ...user,
+                    umur: calculateAge(user.tanggal_lahir)
+                }));
+                setUsers(usersUmur);
+            }
+        } catch(err) {
+            console.error("Fetch users error:", err);
+            setError(err);
         }
         
         // Mengambil data untuk mengisi dropdown filter
@@ -68,79 +89,58 @@ function DashboardPage() {
                 fetch('http://localhost:3001/data/agama'),
                 fetch('http://localhost:3001/data/kepribadian')
             ]);
-            
-            const kotaData = await kotaRes.json();
-            const agamaData = await agamaRes.json();
-            const kepribadianData = await kepribadianRes.json();
-            
-            setKotaOptions(kotaData.kota || []);
-            setAgamaOptions(agamaData.agama || []);
-            setKepribadianOptions(kepribadianData.kepribadian || []);
+            setKotaOptions((await kotaRes.json()).kota || []);
+            setAgamaOptions((await agamaRes.json()).agama || []);
+            setKepribadianOptions((await kepribadianRes.json()).kepribadian || []);
         } catch (err) {
             console.error("Gagal mengambil data filter dropdown:", err);
-            setError(err);
         }
 
         setLoggedInUserEmail(userEmail);
         setLoggedInUserId(userId);
     });
 
-    createEffect(async () => {
-        const userId = loggedInUserId();
-        // Jangan jalankan jika ID user belum ada (komponen belum siap)
-        if (!userId) {
-            return;
-        }
-
-        // Baca semua sinyal filter agar SolidJS melacak perubahan mereka
+    // --- LOGIKA CLIENT-SIDE FILTERING & SORTING ---
+    // createMemo akan membuat signal turunan yang nilainya dihitung ulang setiap kali salah satu dependensinya (users atau filter) berubah.
+    const displayedUsers = createMemo(() => {
+        const allUsers = users();
         const kota = selectedKota();
         const agama = selectedAgama();
         const kepribadian = selectedKepribadian();
-        const jenisKelaminUser = localStorage.getItem('jenisKelamin');
-        
-        console.log("createEffect terpicu! Memuat pengguna dengan filter:", { kepribadian, kota, agama });
 
-        try {
-            const response = await fetch('http://localhost:3001/data/users', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    idUser: userId,
-                    jenisKelamin: jenisKelaminUser,
-                    kota_id: kota || null,
-                    agama_id: agama || null,
-                    kepribadian_id: kepribadian || null,
-                }),
-            });
-            
-            if (!response.ok) {
-               const errorText = await response.text();
-               throw new Error(`Gagal mengambil data pengguna: ${errorText}`);
-            }
-            
-            const data = await response.json();
-            
-            const usersUmur = Array.isArray(data.users) 
-                ? data.users.map(user => ({ ...user, umur: calculateAge(user.tanggal_lahir) }))
-                : [];
-
-            setUsers(usersUmur);
-            
-        } catch (err) {
-            console.error("Fetch users error:", err);
-            setError(err);
-            setUsers([]);
-        } finally {
-            setCardIndex(0);
-            setAction("");
+        if (!kota && !agama && !kepribadian) {
+            // Jika tidak ada filter, cukup kembalikan daftar pengguna (backend sudah mengacaknya).
+            return allUsers;
         }
+
+        const getScore = (user) => {
+            let score = 0;
+            if (kepribadian && String(user.kepribadian_id) === kepribadian) score++;
+            if (kota && String(user.kota_id) === kota) score++;
+            if (agama && String(user.agama_id) === agama) score++;
+            return score;
+        };
+        
+        // Filter hanya pengguna yang memiliki skor > 0 (cocok dengan setidaknya satu kriteria).
+        const filtered = allUsers.filter(user => getScore(user) > 0);
+
+        // Urutkan pengguna yang sudah difilter berdasarkan skor tertinggi.
+        return filtered.sort((a, b) => getScore(b) - getScore(a));
+    });
+
+    // Reset cardIndex setiap kali daftar pengguna yang ditampilkan berubah.
+    createEffect(() => {
+        displayedUsers();
+        console.log("Daftar pengguna diperbarui, reset card index.");
+        setCardIndex(0);
+        setAction("");
     });
 
     const [cardIndex, setCardIndex] = createSignal(0);
     const [action, setAction] = createSignal("");
 
     const nextCard = () => {
-        if (cardIndex() <= users().length - 1) {
+        if (cardIndex() < displayedUsers().length) {
             setCardIndex(cardIndex() + 1);
         } else {
             return (
@@ -153,21 +153,22 @@ function DashboardPage() {
     };
 
     const likeCard = () => {
-        if (cardIndex() >= users().length) return;
-        console.log('Liked:', users()[cardIndex()]);
+        if (cardIndex() >= displayedUsers().length) return;
+        const likedUser = displayedUsers()[cardIndex()];
+        console.log('Liked:', likedUser);
         setAction("like");
         nextCard();
     };
 
     const dislikeCard = () => {
-        if (cardIndex() >= users().length) return;
-        console.log('Disliked:', users()[cardIndex()]);
-        setAction("dislike")
+        if (cardIndex() >= displayedUsers().length) return;
+        console.log('Disliked:', displayedUsers()[cardIndex()]);
+        setAction("dislike");
         nextCard();
     };
 
     const cardStyle = (index) => {
-        const list = users();
+        const list = displayedUsers(); // PERBAIKAN
         if(index < cardIndex()) {
             return {
                 "z-index": list.length - index,
@@ -178,12 +179,9 @@ function DashboardPage() {
         }
         return {
             "z-index": list.length - index,
-            // Mengatur posisi dan skala untuk efek tumpukan
             transform: `scale(${1 - (index - cardIndex()) * 0.05}) translateY(${(index - cardIndex()) * -10}px)`,
-            // Hanya kartu teratas yang opak, sisanya sedikit transparan
             opacity: index === cardIndex() ? '1' : (index < cardIndex() + 3 ? '0.5' : '0'),
             transition: 'transform 0.3s ease-in-out, opacity 0.3s ease-in-out',
-            // Hapus 'left' agar kartu menumpuk di tengah
         };
     };
 
@@ -193,11 +191,8 @@ function DashboardPage() {
             <div class="container">
                 <div class="filter-container">
                     <Show
-                        when={showFilters()} fallback={
-                            <button class="filter-toggle-button" onClick={() => setShowFilters(true)}>
-                                Cari Kriteria Anda
-                            </button>
-                        }
+                        when={showFilters()}
+                        fallback={ <button class="filter-toggle-button" onClick={() => setShowFilters(true)}>Cari Kriteria Anda</button> }
                     >
                         <select class="filter-select" value={selectedKepribadian()} onChange={(e) => setSelectedKepribadian(e.target.value)}>
                             <option value="">Pilih Kepribadian</option>
@@ -213,29 +208,29 @@ function DashboardPage() {
                         </select>
                     </Show>
                 </div>
-
+                
                 <div class="listUser">
-                    {users().map((user, index) => (
-                        <div id={user.user_id} class="profile" style={cardStyle(index)}>
-                            {user.profile_picture && (
-                                <img
-                                    class="card"
-                                    src={user.profile_picture}
-                                    alt={`Foto profil ${user.nama}`}
-                                />
-                            )}
-                            <p class='keteranganUser'><span>{user.nama}</span>, <span>{user.umur} tahun</span></p>
-                        </div>
-                    ))}
+                    <Show when={displayedUsers().length > 0 && cardIndex() < displayedUsers().length}
+                        fallback={<p class="info-text">Tidak ada lagi pengguna untuk ditampilkan.</p>}
+                    >
+                        {displayedUsers().map((user, index) => (
+                            <div id={user.user_id} class="profile" style={cardStyle(index)}>
+                                {user.profile_picture && (
+                                    <img class="card" src={user.profile_picture} alt={`Foto profil ${user.nama}`}/>
+                                )}
+                                <p class='keteranganUser'><span>{user.nama}</span>, <span>{user.umur} tahun</span></p>
+                            </div>
+                        ))}
+                    </Show>
                 </div>
 
                 <div class="controls">
-                    <button class="control-button dislike-button" onClick={dislikeCard}>
+                    <button class="control-button dislike-button" onClick={dislikeCard} disabled={cardIndex() >= displayedUsers().length}>
                         <ImCross size={35}/>
                     </button>
-                    <button class="control-button like-button" onClick={likeCard}>
+                    <button class="control-button like-button" onClick={likeCard} disabled={cardIndex() >= displayedUsers().length}>
                         <AiFillHeart size={40} />
-                    </button>   
+                    </button>  
                 </div>
             </div>
         </div>
