@@ -11,6 +11,7 @@ function Header() {
     let profileMenuRef;
 
     // State untuk menyimpan informasi user yang login
+
     const [loggedInUserEmail, setLoggedInUserEmail] = createSignal('');
     const [loggedInUserName, setLoggedInUserName] = createSignal('');
     const [loggedInUserId, setLoggedInUserId] = createSignal(null);
@@ -29,12 +30,12 @@ function Header() {
     // Fungsi untuk menangani logout
     const handleLogout = () => {
         localStorage.removeItem('authToken');
-        localStorage.removeItem('userEmail');
         localStorage.removeItem('userId');
         localStorage.removeItem('nama');
 
         setLoggedInUserEmail('');
         setLoggedInUserName(null);
+
         setLoggedInUserId(null);
         setLoggedInUserProfilePicture(null);
 
@@ -53,13 +54,13 @@ function Header() {
     };
 
     onMount(() => {
-        const email = localStorage.getItem('userEmail');
         const userId = localStorage.getItem('userId');
         const nama = localStorage.getItem('nama');
 
-        if (email) {
-            setLoggedInUserEmail(email);
+        if (nama) {
+            setLoggedInUserName(nama);
         }
+
         if (userId) {
             setLoggedInUserId(userId);
         }
@@ -77,8 +78,8 @@ function Header() {
     return (
         <header class="independent-header-container">
             <div class="independent-header-left-items">
-                {/* Tampilkan email user yang login di sini */}
-                {loggedInUserEmail() && (
+
+                {loggedInUserName() && (
                     <span class="header-greeting">Halo, {loggedInUserName()}</span>
                 )}
             </div>
