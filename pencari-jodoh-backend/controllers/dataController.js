@@ -41,22 +41,46 @@ const getAllKepribadian = async (req, res) => {
 };
 
 const getAllUsers = async (req, res) => {
-    const {idUser, jenisKelamin} = req.body;
-    try{
-        const query = 'SELECT user_id, nama, tanggal_lahir, profile_picture FROM users WHERE user_id != $1 AND jenis_kelamin != $2';
-        const result = await pool.query(query, [idUser, jenisKelamin]);
+    // Hanya butuh idUser dan jenisKelamin untuk mendapatkan daftar dasar
+    const { idUser, jenisKelamin } = req.body;
+
+    try {
+        // Query sederhana untuk mengambil semua data yang dibutuhkan oleh frontend untuk filter
+        const queryText = `
+            SELECT 
+                u.user_id, u.nama, u.tanggal_lahir, u.profile_picture,
+                u.kota_id, u.kepribadian_id, u.agama_id, -- Kirim ID untuk filtering di client
+                k.nama_kota,
+                p.jenis_kepribadian AS nama_personality,
+                a.nama_agama
+            FROM users u
+            LEFT JOIN kota k ON u.kota_id = k.kota_id
+            LEFT JOIN kepribadian p ON u.kepribadian_id = p.kepribadian_id
+            LEFT JOIN agama a ON u.agama_id = a.agama_id
+            WHERE u.user_id != $1 AND u.jenis_kelamin != $2
+            ORDER BY RANDOM() -- Acak daftar awal dari server
+        `;
+        
+        const queryParams = [idUser, jenisKelamin];
+        const result = await pool.query(queryText, queryParams);
+
+        // Ubah format gambar ke base64 sebelum dikirim
         const users = result.rows.map(user => {
-            const imgType = 'image/jpeg/png';
-            const base64Img = user.profile_picture.toString('base64');
-            user.profile_picture = `data:${imgType};base64,${base64Img}`;
+            if (user.profile_picture) {
+                const imgType = 'image/jpeg';
+                const base64Img = Buffer.from(user.profile_picture).toString('base64');
+                user.profile_picture = `data:${imgType};base64,${base64Img}`;
+            }
             return user;
         });
-        res.status(200).json({ users: result.rows });
-    }catch (error) {
-        console.error('Error fetching users:', error);
+
+        res.status(200).json({ users: users });
+    } catch (error) {
+        console.error('Error fetching all users for CSR:', error);
         res.status(500).json({ error: 'Gagal mengambil daftar users' });
     }
 };
+
 
 module.exports = {
     getAllKota,
