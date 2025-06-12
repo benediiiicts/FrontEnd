@@ -73,11 +73,10 @@ const getAllUsers = async (req, res) => {
 
         // Ubah format gambar ke base64 sebelum dikirim
         const users = result.rows.map(user => {
-            if (user.profile_picture) {
-                const imgType = 'image/jpeg';
-                const base64Img = Buffer.from(user.profile_picture).toString('base64');
-                user.profile_picture = `data:${imgType};base64,${base64Img}`;
-            }
+
+            const imgType = 'image/jpeg';
+            const base64Img = user.profile_picture.toString('base64');
+            user.profile_picture = `data:${imgType};base64,${base64Img}`;
             return user;
         });
 

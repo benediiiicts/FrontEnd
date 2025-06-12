@@ -73,8 +73,13 @@ function DashboardPage() {
                 body: JSON.stringify({ idUser: userId, jenisKelamin: jenisKelaminUser }),
             });
             const data = await response.json();
-            if (Array.isArray(data.users)) {
-                const usersUmur = data.users.map(user => ({
+            console.log('onMount: Data received from API:', data);
+            console.log('onMount: Data[0]:', data[0]); 
+
+            const usersData = data.users;
+
+            if (Array.isArray(usersData)) {
+                const usersUmur = usersData.map(user => ({
                     ...user,
                     umur: calculateAge(user.tanggal_lahir)
                 }));
