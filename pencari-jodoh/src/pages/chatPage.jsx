@@ -34,7 +34,7 @@ function ChatPage() {
       return;
     }
     
-    // --- FIX: Manually connect to the socket server ---
+    
     socket.connect();
 
     try {
@@ -60,7 +60,7 @@ function ChatPage() {
     onCleanup(() => {
       socket.off('pesan_baru', handleNewMessage);
       socket.off('riwayat_chat', handleChatHistory);
-      // --- FIX: Disconnect when the component is no longer needed ---
+      
       socket.disconnect();
     });
   });
